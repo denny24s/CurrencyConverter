@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">CurrencyConverter</string>
+    <string name="currency_converter">Currency Converter</string>
+    <string name="update">Update</string>
+    <string name="updated_time">Updated time</string>
+    <string name="add">add</string>
+    <string name="dark_mode">Dark mode</string>
+    <string name="app_language">App language</string>
+    <string name="share">Share</string>
+    <string name="info">Info</string>
+    <string name="feedback">Feedback</string>
+    <string name="rate">Rate</string>
 </resources>
