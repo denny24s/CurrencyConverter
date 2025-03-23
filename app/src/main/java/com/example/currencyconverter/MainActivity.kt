@@ -239,5 +239,4 @@ class MainActivity : AppCompatActivity() {
             previousId = rowId
         }
     }
-
 }

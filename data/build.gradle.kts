@@ -38,4 +38,9 @@ dependencies {
     implementation(project(":domain"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
+
+    implementation(libs.retrofit)
+    implementation(libs.retrofit2.converter.gson)
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
 }
