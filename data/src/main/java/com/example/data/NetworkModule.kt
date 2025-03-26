@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.room.Room
 import com.example.data.local.AppDatabase
 import com.example.data.local.CurrencyDao
-import com.example.data.local.Converters
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -44,8 +43,8 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideCurrencyApiService(retrofit: Retrofit): CurrencyApiService {
-        return retrofit.create(CurrencyApiService::class.java)
+    fun provideCurrencyApiService(retrofit: Retrofit): CurrencyApi {
+        return retrofit.create(CurrencyApi::class.java)
     }
 
     @Provides
@@ -53,7 +52,6 @@ object NetworkModule {
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
         return Room.databaseBuilder(context, AppDatabase::class.java, "app_database").build()
     }
-
 
     @Provides
     @Singleton
@@ -64,7 +62,7 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideCurrencyRepository(
-        api: CurrencyApiService,
+        api: CurrencyApi,
         dao: CurrencyDao
     ): com.example.domain.CurrencyRepository {
         return CurrencyRepositoryImpl(api, dao)

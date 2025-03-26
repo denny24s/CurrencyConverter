@@ -1,3 +1,4 @@
+// CurrencyRepositoryImpl.kt
 package com.example.data
 
 import com.example.data.local.CurrencyDao
@@ -9,36 +10,30 @@ import com.example.domain.ExchangeRates
 import javax.inject.Inject
 
 class CurrencyRepositoryImpl @Inject constructor(
-    private val api: CurrencyApiService,
+    private val api: CurrencyApi,
     private val dao: CurrencyDao
 ) : CurrencyRepository {
-    override suspend fun getExchangeRates(): ExchangeRates {
-        // Fetch exchange rates from API.
-        val apiResponse = api.getRates()
-        val baseValue = apiResponse.base ?: "EUR"
-        val dateValue = apiResponse.date ?: ""
-        val ratesValue = apiResponse.rates ?: emptyMap()
 
-        // Save to Room.
+    override suspend fun getExchangeRates(): ExchangeRates {
+        val apiResponse = api.getEurRates()
+        // Save the rates to Room (if needed).
         val entity = ExchangeRatesEntity(
-            base = baseValue,
-            date = dateValue,
-            rates = ratesValue
+            base = apiResponse.base,
+            // date removed—if you have a column for date you can omit or provide a default.
+            rates = apiResponse.rates
         )
         dao.insertExchangeRates(entity)
-        // Convert API response to domain model.
         return ExchangeRates(
-            date = dateValue,
-            base = baseValue,
-            rates = ratesValue
+            base = apiResponse.base,
+            rates = apiResponse.rates
         )
     }
 
     override suspend fun getCurrencyList(): List<CurrencyInfo> {
-        // Fetch currencies from API.
-        val apiResponse = api.getCurrencies()
-        // Provide a default empty map if currencies is null.
-        val entities = (apiResponse.currencies ?: emptyMap()).map { (code, name) ->
+        val apiResponse = api.getAllCurrencies()
+        // Ensure we have a non-null map.
+        val currenciesMap = apiResponse.currencies ?: emptyMap()
+        val entities = currenciesMap.map { (code, name) ->
             CurrencyEntity(code.uppercase(), name)
         }
         dao.insertCurrencies(entities)
