@@ -4,239 +4,157 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.view.GravityCompat
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.currencyconverter.databinding.ActivityMainBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
+    // Our main list adapter – initially with an empty list.
     private lateinit var adapter: CurrencyAdapter
+
+    // Retrofit API instance.
+    private val api: CurrencyApi by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(CurrencyApi::class.java)
+    }
+
+    // We'll keep the full list of currencies (from API) here.
+    private var fullCurrencyList: List<CurrencyInfo> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // RecyclerView setup ...
-        val initialItems = mutableListOf(
-            CurrencyItem("USD", 1.0),
-            CurrencyItem("UAH", 40.0),
-            CurrencyItem("RUB", 80.0)
-        )
-        adapter = CurrencyAdapter(this, initialItems)
+        // Set up RecyclerView with an empty adapter.
+        adapter = CurrencyAdapter(this, mutableListOf(), emptyMap())
         binding.currencyRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.currencyRecyclerView.adapter = adapter
 
-        // Drag & Swipe
-        val touchHelperCallback = CurrencyItemTouchHelperCallback(adapter)
-        ItemTouchHelper(touchHelperCallback).attachToRecyclerView(binding.currencyRecyclerView)
-
-        // Menu button -> open drawer
+        // (Optional) Set up other UI elements (drawer, update, calculator…)
         binding.btnMenu.setOnClickListener {
-            binding.drawerLayout.openDrawer(GravityCompat.START)
+            binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.START)
         }
-
-        // Dark mode switch
-        val switchDarkMode = findViewById<Switch>(R.id.switchDarkMode)
-        switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            }
-        }
-
-        // Language row
-        val languageRow = findViewById<android.view.View>(R.id.languageRow)
-        languageRow.setOnClickListener {
-            val languages = arrayOf("English", "English")
-            AlertDialog.Builder(this)
-                .setTitle("Choose language")
-                .setItems(languages) { _, which ->
-                    Toast.makeText(this, "Language changed to English", Toast.LENGTH_SHORT).show()
-                }
-                .show()
-        }
-
-        // Share row
-        findViewById<android.view.View>(R.id.shareRow).setOnClickListener {
-            Toast.makeText(this, "Share clicked", Toast.LENGTH_SHORT).show()
-        }
-
-        // Info row
-        findViewById<android.view.View>(R.id.infoRow).setOnClickListener {
-            Toast.makeText(this, "Info clicked", Toast.LENGTH_SHORT).show()
-        }
-
-        // Feedback row
-        findViewById<android.view.View>(R.id.feedbackRow).setOnClickListener {
-            Toast.makeText(this, "Feedback clicked", Toast.LENGTH_SHORT).show()
-        }
-
-        // Rate row
-        findViewById<android.view.View>(R.id.rateRow).setOnClickListener {
-            Toast.makeText(this, "Rate clicked", Toast.LENGTH_SHORT).show()
-        }
-
-        // Version text
-        val tvVersion = findViewById<TextView>(R.id.tvVersion)
-        tvVersion.text = "Version 1.0.0"
-
-        // Update button
         binding.btnUpdate.setOnClickListener {
-            // TODO: fetch new rates
+            // You can implement a refresh here if needed.
+        }
+        binding.btnCalculator.setOnClickListener {
+            startActivity(Intent(this, CalculatorActivity::class.java))
         }
         binding.tvLastUpdate.text = "Updated 11:31 14.08.2025"
 
-        // Add currency row
+        // When the user presses "Add", show the bottom sheet.
         binding.btnAdd.setOnClickListener {
             showCurrencyBottomSheet()
         }
 
-        // Calculator button
-        binding.btnCalculator.setOnClickListener {
-            startActivity(Intent(this, CalculatorActivity::class.java))
+        // Launch a coroutine to fetch the full list of currencies and also the EUR rates.
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // Get the full list of currencies from the API.
+                val currenciesMap = api.getAllCurrencies() // Map<String, String>
+                // Convert the map to a list of CurrencyInfo.
+                fullCurrencyList = currenciesMap.map { CurrencyInfo(it.key, it.value) }
+                // Also fetch the EUR-based rates.
+                val eurResponse: EurResponse = api.getEurRates()
+                val ratesMap = eurResponse.eur // Map<String, Double>
+                withContext(Dispatchers.Main) {
+                    // Update our adapter’s exchangeRates map.
+                    adapter.exchangeRates = ratesMap
+                    // (Since the main list is initially empty, nothing to update there.)
+                    Log.d("MainActivity", "Fetched ${fullCurrencyList.size} currencies and rates: $ratesMap")
+                }
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Error fetching currencies or rates: ${e.message}")
+            }
         }
     }
 
-    private fun showCurrencyPicker() {
-        val currencies = arrayOf("USD", "UAH", "RUB")
-        AlertDialog.Builder(this)
-            .setTitle("Choose currency")
-            .setItems(currencies) { _, which ->
-                adapter.addNewCurrency(currencies[which])
-            }
-            .show()
-    }
-
+    // Show bottom sheet for adding a currency.
     private fun showCurrencyBottomSheet() {
-        val bottomSheetView = layoutInflater.inflate(R.layout.bottom_sheet_currencies, null)
+        // Inflate the bottom sheet layout. We pass the activity's content as the parent.
+        val parent = findViewById<ViewGroup>(android.R.id.content)
+        val bottomSheetView = layoutInflater.inflate(R.layout.bottom_sheet_currencies, parent, false)
         val bottomSheetDialog = BottomSheetDialog(this)
         bottomSheetDialog.setContentView(bottomSheetView)
 
+        // Find views in the bottom sheet.
         val btnClose = bottomSheetView.findViewById<ImageView>(R.id.btnClose)
         val btnSearch = bottomSheetView.findViewById<ImageView>(R.id.btnSearch)
-        val tvTitle  = bottomSheetView.findViewById<TextView>(R.id.tvTitle)
+        val tvTitle = bottomSheetView.findViewById<TextView>(R.id.tvTitle)
         val etSearch = bottomSheetView.findViewById<EditText>(R.id.etSearch)
-        val container = bottomSheetView.findViewById<ConstraintLayout>(R.id.currencyListContainer)
-
-        // Example data (add more if needed)
-        val currencyData = listOf(
-            CurrencyInfo("USD", "United States"),
-            CurrencyInfo("UAH", "Ukraine"),
-            CurrencyInfo("RUB", "Russia")
-        )
-
-        // Populate the bottom sheet list with a callback to add currency
-        populateCurrencyList(currencyData, container) { chosenCode ->
-            adapter.addNewCurrency(chosenCode)      // <--- add the currency row
-            bottomSheetDialog.dismiss()
-        }
-
-        // Close icon
-        btnClose.setOnClickListener {
-            bottomSheetDialog.dismiss()
-        }
-
-        // Toggle between search mode and normal mode
-        var isSearching = false
-        btnSearch.setOnClickListener {
-            isSearching = !isSearching
-            if (isSearching) {
-                // Switch to search mode
-                btnSearch.setImageResource(R.drawable.baseline_close_24)
-                tvTitle.visibility = View.GONE
-                etSearch.visibility = View.VISIBLE
-                etSearch.requestFocus()
-            } else {
-                // Cancel search
-                btnSearch.setImageResource(R.drawable.baseline_search_24)
-                tvTitle.visibility = View.VISIBLE
-                etSearch.visibility = View.GONE
-                etSearch.setText("")
-                // Reset list to all items
-                populateCurrencyList(currencyData, container) { chosenCode ->
-                    adapter.addNewCurrency(chosenCode)
-                    bottomSheetDialog.dismiss()
+        // In this version, the bottom sheet layout contains a RecyclerView (id: currenciesRecycler).
+        val recycler = bottomSheetView.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.currenciesRecycler)
+        recycler.layoutManager = LinearLayoutManager(this)
+        // Set the adapter for the bottom sheet.
+        recycler.adapter = CurrenciesBottomSheetAdapter(fullCurrencyList) { pickedCode ->
+            // When the user selects a currency, fetch its rate.
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val eurResponse: EurResponse = api.getEurRates()
+                    val rate = eurResponse.eur[pickedCode] ?: 0.0
+                    withContext(Dispatchers.Main) {
+                        // Add a new row with the selected currency code and its rate.
+                        adapter.addNewCurrency(pickedCode, rate)
+                        bottomSheetDialog.dismiss()
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@MainActivity, "Error fetching rate: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
 
-        // Filter as user types
+        // Set up search functionality.
+        btnClose.setOnClickListener { bottomSheetDialog.dismiss() }
+        btnSearch.setOnClickListener {
+            if (etSearch.visibility == View.GONE) {
+                btnSearch.setImageResource(R.drawable.baseline_close_24)
+                tvTitle.visibility = View.GONE
+                etSearch.visibility = View.VISIBLE
+                etSearch.post { etSearch.requestFocus() }
+            } else {
+                btnSearch.setImageResource(R.drawable.baseline_search_24)
+                tvTitle.visibility = View.VISIBLE
+                etSearch.visibility = View.GONE
+                etSearch.setText("")
+                (recycler.adapter as? CurrenciesBottomSheetAdapter)?.updateData(fullCurrencyList)
+            }
+        }
         etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 val query = s.toString().lowercase()
-                val filtered = currencyData.filter {
-                    it.code.lowercase().contains(query) || it.country.lowercase().contains(query)
+                val filtered = fullCurrencyList.filter {
+                    it.code.lowercase().contains(query) || it.name.lowercase().contains(query)
                 }
-                // Re-populate with filtered data
-                populateCurrencyList(filtered, container) { chosenCode ->
-                    adapter.addNewCurrency(chosenCode)
-                    bottomSheetDialog.dismiss()
-                }
+                (recycler.adapter as? CurrenciesBottomSheetAdapter)?.updateData(filtered)
             }
         })
 
         bottomSheetDialog.show()
-    }
-
-
-    /** Adds rows for each currency to the container. */
-    private fun populateCurrencyList(
-        data: List<CurrencyInfo>,
-        container: ConstraintLayout,
-        onCurrencySelected: (String) -> Unit
-    ) {
-        container.removeAllViews()
-        var previousId = View.NO_ID
-
-        data.forEach { info ->
-            val rowId = View.generateViewId()
-            val rowView = layoutInflater.inflate(R.layout.item_currency_info, container, false)
-            rowView.id = rowId
-
-            // Bind data
-            val tvCode = rowView.findViewById<TextView>(R.id.tvCode)
-            val tvCountry = rowView.findViewById<TextView>(R.id.tvCountry)
-            tvCode.text = info.code
-            tvCountry.text = info.country
-
-            // On row click -> add new currency
-            rowView.setOnClickListener {
-                onCurrencySelected(info.code)  // <--- calls adapter.addNewCurrency(...)
-            }
-
-            container.addView(rowView)
-
-            // Constrain each row below the previous one
-            val set = ConstraintSet()
-            set.clone(container)
-            if (previousId == View.NO_ID) {
-                set.connect(rowId, ConstraintSet.TOP, container.id, ConstraintSet.TOP, 16)
-            } else {
-                set.connect(rowId, ConstraintSet.TOP, previousId, ConstraintSet.BOTTOM, 16)
-            }
-            set.connect(rowId, ConstraintSet.START, container.id, ConstraintSet.START)
-            set.connect(rowId, ConstraintSet.END, container.id, ConstraintSet.END)
-            set.applyTo(container)
-
-            previousId = rowId
-        }
     }
 }

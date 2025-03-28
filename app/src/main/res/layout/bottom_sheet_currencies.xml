@@ -20,7 +20,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <!-- Title (visible if not searching) -->
+        <!-- Title -->
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
@@ -31,7 +31,7 @@
             app:layout_constraintStart_toEndOf="@id/btnClose"
             android:layout_marginStart="16dp" />
 
-        <!-- EditText (visible if searching) -->
+        <!-- EditText for searching -->
         <EditText
             android:id="@+id/etSearch"
             android:layout_width="0dp"
@@ -45,7 +45,7 @@
             android:inputType="text"
             android:maxLines="1" />
 
-        <!-- Search/Cancel icon -->
+        <!-- Search icon -->
         <ImageView
             android:id="@+id/btnSearch"
             android:layout_width="24dp"
@@ -54,26 +54,16 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Scrollable list of currencies -->
-        <androidx.core.widget.NestedScrollView
-            android:id="@+id/scrollList"
-            android:layout_width="0dp"
+        <!-- RecyclerView to list currencies -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/currenciesRecycler"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@id/btnClose"
+            android:layout_marginTop="64dp"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-            <!-- Container for currency items -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/currencyListContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-                <!-- We'll add items dynamically in code,
-                     or you can define them statically here. -->
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </androidx.core.widget.NestedScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
