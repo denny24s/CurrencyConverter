@@ -4,14 +4,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/currencyRow"
     android:layout_width="match_parent"
-    android:layout_height="44dp"
-    android:orientation="horizontal"
+    android:layout_height="wrap_content"
     android:layout_marginVertical="8dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/currencyChangeContainer"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
+        android:paddingVertical="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -20,32 +20,41 @@
             android:id="@+id/tvCurrency"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
             android:text="USD"
+            android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/tvCurrencyName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="United States Dollar"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvCurrency" />
 
         <ImageView
             android:id="@+id/btArrowDown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/baseline_arrow_drop_down_24"
-            app:layout_constraintStart_toEndOf="@+id/tvCurrency"
-            app:layout_constraintTop_toTopOf="@+id/tvCurrency" />
+            app:layout_constraintBottom_toBottomOf="@id/tvCurrency"
+            app:layout_constraintStart_toEndOf="@id/tvCurrency"
+            app:layout_constraintTop_toTopOf="@id/tvCurrency"
+            android:layout_marginStart="4dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <EditText
         android:id="@+id/etValue"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_marginEnd="44dp"
-        android:layout_weight="1"
+        android:layout_marginEnd="16dp"
+        android:gravity="end"
         android:inputType="numberDecimal"
-        android:gravity="center"
-        android:text="1"
         android:background="@null"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

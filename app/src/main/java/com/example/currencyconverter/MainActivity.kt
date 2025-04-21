@@ -10,10 +10,10 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.currencyconverter.databinding.ActivityMainBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.CoroutineScope
@@ -26,11 +26,11 @@ import retrofit2.converter.gson.GsonConverterFactory
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-
-    // Our main list adapter – initially with an empty list.
     private lateinit var adapter: CurrencyAdapter
 
-    // Retrofit API instance.
+    // We'll track which row is the "base" (the last row user typed on or changed currency).
+    private var selectedBasePosition: Int = 0
+
     private val api: CurrencyApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/")
@@ -39,7 +39,6 @@ class MainActivity : AppCompatActivity() {
             .create(CurrencyApi::class.java)
     }
 
-    // We'll keep the full list of currencies (from API) here.
     private var fullCurrencyList: List<CurrencyInfo> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,100 +46,195 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Set up RecyclerView with an empty adapter.
-        adapter = CurrencyAdapter(this, mutableListOf(), emptyMap())
+        adapter = CurrencyAdapter(
+            context = this,
+            items = mutableListOf(),
+            exchangeRates = emptyMap(),
+            onCurrencyChangeRequested = { position ->
+                // Mark that row as the base
+                selectedBasePosition = position
+                // Show bottom sheet
+                showCurrencyBottomSheet { pickedCode ->
+                    changeCurrencyForItem(position, pickedCode)
+                }
+            },
+            onValueChanged = { basePosition ->
+                selectedBasePosition = basePosition
+                adapter.recalculateAll(basePosition)
+            }
+        )
+
         binding.currencyRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.currencyRecyclerView.adapter = adapter
 
-        // (Optional) Set up other UI elements (drawer, update, calculator…)
+        // Enable drag & swipe
+        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP or ItemTouchHelper.DOWN, // drag
+            ItemTouchHelper.LEFT // swipe left
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                val fromPos = viewHolder.adapterPosition
+                val toPos = target.adapterPosition
+                adapter.moveItem(fromPos, toPos)
+                return true
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                adapter.removeItem(position)
+            }
+        })
+        itemTouchHelper.attachToRecyclerView(binding.currencyRecyclerView)
+
+        // Drawer, update, calculator
         binding.btnMenu.setOnClickListener {
             binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.START)
         }
         binding.btnUpdate.setOnClickListener {
-            // You can implement a refresh here if needed.
+            // refresh logic if needed
         }
         binding.btnCalculator.setOnClickListener {
             startActivity(Intent(this, CalculatorActivity::class.java))
         }
         binding.tvLastUpdate.text = "Updated 11:31 14.08.2025"
 
-        // When the user presses "Add", show the bottom sheet.
+        // Add new currency
         binding.btnAdd.setOnClickListener {
-            showCurrencyBottomSheet()
+            // We'll pick the "base" row as the row that currently has focus or was last updated
+            showCurrencyBottomSheet { pickedCode ->
+                addNewCurrencyRow(pickedCode)
+            }
         }
 
-        // Launch a coroutine to fetch the full list of currencies and also the EUR rates.
+        // Fetch currencies + EUR-based rates
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Get the full list of currencies from the API.
-                val currenciesMap = api.getAllCurrencies() // Map<String, String>
-                // Convert the map to a list of CurrencyInfo.
+                val currenciesMap = api.getAllCurrencies()
                 fullCurrencyList = currenciesMap.map { CurrencyInfo(it.key, it.value) }
-                // Also fetch the EUR-based rates.
-                val eurResponse: EurResponse = api.getEurRates()
-                val ratesMap = eurResponse.eur // Map<String, Double>
+                val eurResponse = api.getEurRates()
+                val ratesMap = eurResponse.eur
+
                 withContext(Dispatchers.Main) {
-                    // Update our adapter’s exchangeRates map.
                     adapter.exchangeRates = ratesMap
-                    // (Since the main list is initially empty, nothing to update there.)
-                    Log.d("MainActivity", "Fetched ${fullCurrencyList.size} currencies and rates: $ratesMap")
+                    // 1) Add 3 default rows: EUR, USD, UAH (with correct initial values)
+                    initDefaultCurrencies()
                 }
             } catch (e: Exception) {
-                Log.e("MainActivity", "Error fetching currencies or rates: ${e.message}")
+                Log.e("MainActivity", "Error fetching: ${e.message}")
             }
         }
     }
 
-    // Show bottom sheet for adding a currency.
-    private fun showCurrencyBottomSheet() {
-        // Inflate the bottom sheet layout. We pass the activity's content as the parent.
+    // This function will add EUR, USD, UAH with correct math
+    private fun initDefaultCurrencies() {
+        // Suppose EUR=1.0 as the baseline
+        val euroCode = "eur"
+        val usdCode = "usd"
+        val uahCode = "uah"
+
+        // We definitely need these to be present in the rates map
+        // But if not, let's default them to 1.0 just in case
+        val rateEUR = adapter.exchangeRates[euroCode] ?: 1.0 // Usually 1.0
+        val rateUSD = adapter.exchangeRates[usdCode] ?: 1.0
+        val rateUAH = adapter.exchangeRates[uahCode] ?: 1.0
+
+        // We'll add them in a standard order: EUR first, then USD, then UAH.
+        // EUR = 1.0
+        val nameEur = fullCurrencyList.find { it.code == "eur" }?.name ?: "Euro"
+        adapter.addNewCurrency(euroCode, nameEur, rateEUR)
+        // The newly added row is the last row, so let's recalc from the new row?
+        // But we want it to stay as is for now. We'll do the final recalc after all are added.
+
+        // USD = (1.0 * rateUSD / rateEUR) *but typically rateEUR is 1
+        // Actually we want to say: If 1 EUR = <some> USD, then let's set the row's value to that
+        // which is the ratio rateUSD / rateEUR
+        val usdValue = (1.0 / rateEUR) * rateUSD
+        val nameUsd = fullCurrencyList.find { it.code == "usd" }?.name ?: "US Dollar"
+        adapter.addNewCurrency(usdCode, nameUsd, usdValue)
+
+        // UAH = (1.0 * rateUAH / rateEUR)
+        val uahValue = (1.0 / rateEUR) * rateUAH
+        val nameUah = fullCurrencyList.find { it.code == "uah" }?.name ?: "Ukrainian Hryvnia"
+        adapter.addNewCurrency(uahCode, nameUah, uahValue)
+
+        // We'll recalc from the EUR row (which is position 0 after we inserted them).
+        // That ensures everything is consistent.
+        adapter.recalculateAll(0)
+    }
+
+    private fun addNewCurrencyRow(pickedCode: String) {
+        // We'll do math based on the "selectedBasePosition".
+        val baseItem = adapter.items.getOrNull(selectedBasePosition) ?: return
+        val baseRate = adapter.exchangeRates[baseItem.currency] ?: 1.0
+        val baseValueInEur = baseItem.value / baseRate
+
+        val newRate = adapter.exchangeRates[pickedCode] ?: 1.0
+        val newValue = baseValueInEur * newRate
+
+        val name = fullCurrencyList.find { it.code == pickedCode }?.name ?: pickedCode
+        adapter.addNewCurrency(
+            code = pickedCode,
+            name = name,
+            rate = newValue
+        )
+        // The newly added row is last in the list
+        val newRowPos = adapter.items.size - 1
+        adapter.notifyItemChanged(newRowPos)
+    }
+
+    private fun changeCurrencyForItem(position: Int, newCode: String) {
+        // We'll do math based on that same position
+        val baseItem = adapter.items[position]
+        val oldRate = adapter.exchangeRates[baseItem.currency] ?: 1.0
+        val oldValueInEur = baseItem.value / oldRate
+
+        val newRate = adapter.exchangeRates[newCode] ?: 1.0
+        val newValue = oldValueInEur * newRate
+
+        val name = fullCurrencyList.find { it.code == newCode }?.name ?: newCode
+        adapter.updateItemCurrency(position, newCode, name, newValue)
+        // Recalculate from this row
+        adapter.recalculateAll(position)
+    }
+
+    private fun showCurrencyBottomSheet(onPick: (String) -> Unit) {
         val parent = findViewById<ViewGroup>(android.R.id.content)
         val bottomSheetView = layoutInflater.inflate(R.layout.bottom_sheet_currencies, parent, false)
         val bottomSheetDialog = BottomSheetDialog(this)
         bottomSheetDialog.setContentView(bottomSheetView)
 
-        // Find views in the bottom sheet.
         val btnClose = bottomSheetView.findViewById<ImageView>(R.id.btnClose)
         val btnSearch = bottomSheetView.findViewById<ImageView>(R.id.btnSearch)
         val tvTitle = bottomSheetView.findViewById<TextView>(R.id.tvTitle)
         val etSearch = bottomSheetView.findViewById<EditText>(R.id.etSearch)
-        // In this version, the bottom sheet layout contains a RecyclerView (id: currenciesRecycler).
-        val recycler = bottomSheetView.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.currenciesRecycler)
+        val recycler = bottomSheetView.findViewById<RecyclerView>(R.id.currenciesRecycler)
+
         recycler.layoutManager = LinearLayoutManager(this)
-        // Set the adapter for the bottom sheet.
-        recycler.adapter = CurrenciesBottomSheetAdapter(fullCurrencyList) { pickedCode ->
-            // When the user selects a currency, fetch its rate.
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val eurResponse: EurResponse = api.getEurRates()
-                    val rate = eurResponse.eur[pickedCode] ?: 0.0
-                    withContext(Dispatchers.Main) {
-                        // Add a new row with the selected currency code and its rate.
-                        adapter.addNewCurrency(pickedCode, rate)
-                        bottomSheetDialog.dismiss()
-                    }
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(this@MainActivity, "Error fetching rate: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-                }
+        val sheetAdapter = CurrenciesBottomSheetAdapter(fullCurrencyList) { pickedCode ->
+            CoroutineScope(Dispatchers.Main).launch {
+                onPick(pickedCode)
+                bottomSheetDialog.dismiss()
             }
         }
+        recycler.adapter = sheetAdapter
 
-        // Set up search functionality.
         btnClose.setOnClickListener { bottomSheetDialog.dismiss() }
         btnSearch.setOnClickListener {
             if (etSearch.visibility == View.GONE) {
                 btnSearch.setImageResource(R.drawable.baseline_close_24)
                 tvTitle.visibility = View.GONE
                 etSearch.visibility = View.VISIBLE
-                etSearch.post { etSearch.requestFocus() }
+                etSearch.requestFocus()
             } else {
                 btnSearch.setImageResource(R.drawable.baseline_search_24)
                 tvTitle.visibility = View.VISIBLE
                 etSearch.visibility = View.GONE
                 etSearch.setText("")
-                (recycler.adapter as? CurrenciesBottomSheetAdapter)?.updateData(fullCurrencyList)
+                sheetAdapter.updateData(fullCurrencyList)
             }
         }
         etSearch.addTextChangedListener(object : TextWatcher {
@@ -151,7 +245,7 @@ class MainActivity : AppCompatActivity() {
                 val filtered = fullCurrencyList.filter {
                     it.code.lowercase().contains(query) || it.name.lowercase().contains(query)
                 }
-                (recycler.adapter as? CurrenciesBottomSheetAdapter)?.updateData(filtered)
+                sheetAdapter.updateData(filtered)
             }
         })
 

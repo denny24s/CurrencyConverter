@@ -1,6 +1,7 @@
 package com.example.currencyconverter
 
 data class CurrencyItem(
-    val currency: String,
+    var currency: String,
+    var currencyName: String,
     var value: Double
 )
