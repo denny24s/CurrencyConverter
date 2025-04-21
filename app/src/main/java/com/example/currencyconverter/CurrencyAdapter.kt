@@ -114,7 +114,7 @@ class CurrencyAdapter(
         }
 
         fun bind(item: CurrencyItem, position: Int) {
-            binding.tvCurrency.text = item.currency
+            binding.tvCurrency.text = item.currency.uppercase()
             binding.tvCurrencyName.text = item.currencyName
 
             binding.currencyChangeContainer.setOnClickListener {

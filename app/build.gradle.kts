@@ -73,6 +73,8 @@ dependencies {
 
     implementation(libs.retrofit)
     implementation(libs.retrofit2.converter.gson)
+
+    implementation ("androidx.datastore:datastore-preferences:1.1.4")
 }
 
 kapt {

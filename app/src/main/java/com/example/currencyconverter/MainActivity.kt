@@ -11,11 +11,14 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.currencyconverter.databinding.ActivityMainBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.navigation.NavigationView
+import com.google.android.material.switchmaterial.SwitchMaterial
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,6 +30,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: CurrencyAdapter
+
 
     // We'll track which row is the "base" (the last row user typed on or changed currency).
     private var selectedBasePosition: Int = 0
@@ -43,8 +47,39 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 0) read saved mode
+        val prefs = getSharedPreferences("settings", MODE_PRIVATE)
+        val savedMode = prefs.getInt(
+            "theme_mode",
+            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        )
+        AppCompatDelegate.setDefaultNightMode(savedMode)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // 3) now it’s safe to reference binding.* or call findViewById
+        val navViewContainer = findViewById<NavigationView>(R.id.navViewContainer)
+        val switchDark = navViewContainer.findViewById<SwitchMaterial>(R.id.switchDarkMode)
+
+        switchDark.isChecked =
+            AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
+
+        // 4) Wire up the toggle
+        switchDark.setOnCheckedChangeListener { _, isChecked ->
+            val mode = if (isChecked)
+                AppCompatDelegate.MODE_NIGHT_YES
+            else
+                AppCompatDelegate.MODE_NIGHT_NO
+
+            AppCompatDelegate.setDefaultNightMode(mode)
+            //  save
+            prefs.edit()
+                .putInt("theme_mode", mode)
+                .apply()
+        }
+
 
         adapter = CurrencyAdapter(
             context = this,
