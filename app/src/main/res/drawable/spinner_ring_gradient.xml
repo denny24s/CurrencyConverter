@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?><!-- spinner_ring_gradient.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:innerRadiusRatio="3.0"
+    android:shape="ring"
+    android:thickness="12dp"
+    android:useLevel="false">        <!-- The thickness of the ring -->
+
+    <!-- The ring’s color gradient. We use ‘sweep’ so it’s radial around center. -->
+    <gradient
+        android:angle="0"
+        android:centerColor="@android:color/transparent"
+        android:endColor="#FFFFFF"
+        android:startColor="#000000"
+        android:type="sweep" />
+</shape>
