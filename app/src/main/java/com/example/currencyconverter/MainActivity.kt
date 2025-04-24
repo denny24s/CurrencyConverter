@@ -12,10 +12,13 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -48,6 +51,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
+
         // 0) Restore saved theme
         val prefs = getSharedPreferences("settings", MODE_PRIVATE)
         val savedMode = prefs.getInt(
@@ -71,6 +76,23 @@ class MainActivity : AppCompatActivity() {
             prefs.edit().putInt("theme_mode", mode).apply()
         }
 
+        // Info:
+        nav.findViewById<View>(R.id.infoRow).setOnClickListener {
+            startActivity(Intent(this, InfoActivity::class.java))
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+        }
+
+// The four “toast” rows:
+        listOf(
+            R.id.languageRow    to "Language clicked",
+            R.id.shareRow       to "Share clicked",
+            R.id.feedbackRow    to "Feedback clicked",
+            R.id.rateRow        to "Rate clicked"
+        ).forEach { (id, msg) ->
+            nav.findViewById<View>(id).setOnClickListener {
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            }
+        }
         // 3) Setup RecyclerView + Adapter
         adapter = CurrencyAdapter(
             context = this,
@@ -225,10 +247,10 @@ class MainActivity : AppCompatActivity() {
         val dlg = BottomSheetDialog(this).also { it.setContentView(view) }
 
         val btnClose = view.findViewById<ImageView>(R.id.btnClose)
-        val btnSearch= view.findViewById<ImageView>(R.id.btnSearch)
+        val btnSearch = view.findViewById<ImageView>(R.id.btnSearch)
         val tvTitle = view.findViewById<TextView>(R.id.tvTitle)
-        val etSearch= view.findViewById<EditText>(R.id.etSearch)
-        val rv      = view.findViewById<RecyclerView>(R.id.currenciesRecycler)
+        val etSearch = view.findViewById<EditText>(R.id.etSearch)
+        val rv = view.findViewById<RecyclerView>(R.id.currenciesRecycler)
 
         rv.layoutManager = LinearLayoutManager(this)
         val sheetAdapter = CurrenciesBottomSheetAdapter(fullCurrencyList) {
@@ -237,9 +259,9 @@ class MainActivity : AppCompatActivity() {
         }
         rv.adapter = sheetAdapter
 
-        btnClose.setOnClickListener{ dlg.dismiss() }
+        btnClose.setOnClickListener { dlg.dismiss() }
         btnSearch.setOnClickListener {
-            if (etSearch.visibility==View.GONE) {
+            if (etSearch.visibility == View.GONE) {
                 btnSearch.setImageResource(R.drawable.baseline_close_24)
                 tvTitle.visibility = View.GONE
                 etSearch.visibility = View.VISIBLE
@@ -252,11 +274,11 @@ class MainActivity : AppCompatActivity() {
                 sheetAdapter.updateData(fullCurrencyList)
             }
         }
-        etSearch.addTextChangedListener(object: TextWatcher {
-            override fun beforeTextChanged(s:CharSequence?,st:Int,bf:Int,ac:Int){}
-            override fun onTextChanged(s:CharSequence?,st:Int,bf:Int,ac:Int){}
-            override fun afterTextChanged(s: Editable?){
-                val q=s.toString().lowercase()
+        etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, st: Int, bf: Int, ac: Int) {}
+            override fun onTextChanged(s: CharSequence?, st: Int, bf: Int, ac: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val q = s.toString().lowercase()
                 sheetAdapter.updateData(
                     fullCurrencyList.filter {
                         it.code.lowercase().contains(q) ||
@@ -267,5 +289,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         dlg.show()
+
+
     }
 }

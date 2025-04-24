@@ -169,7 +169,6 @@
                         app:layout_constraintTop_toBottomOf="@id/tvNoConnSub" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
-
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>
 
@@ -207,6 +206,8 @@
             android:id="@+id/navViewContainer"
             layout="@layout/nav_drawer" />
     </FrameLayout>
+
+
 
     <!-- Include the custom drawer layout -->
 
