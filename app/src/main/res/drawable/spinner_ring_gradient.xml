@@ -2,7 +2,7 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:innerRadiusRatio="3.0"
     android:shape="ring"
-    android:thickness="12dp"
+    android:thickness="4dp"
     android:useLevel="false">        <!-- The thickness of the ring -->
 
     <!-- The ring’s color gradient. We use ‘sweep’ so it’s radial around center. -->
