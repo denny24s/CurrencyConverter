@@ -157,6 +157,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tvNoConnTitle" />
 
+
                     <Button
                         android:id="@+id/btnScrollRetry"
                         android:layout_width="wrap_content"
