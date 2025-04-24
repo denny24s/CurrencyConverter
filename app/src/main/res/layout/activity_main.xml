@@ -34,19 +34,24 @@
             app:layout_constraintStart_toEndOf="@id/btnMenu"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnUpdate"
+            style="@style/Widget.MaterialComponents.Button.Icon"
             android:layout_width="70dp"
             android:layout_height="30dp"
             android:layout_marginStart="16dp"
             android:layout_marginBottom="8dp"
             android:layout_marginTop="100dp"
-            android:text="@string/update"
+            android:text="dasdiad"
+            android:textSize="8dp"
+            android:contentDescription="@string/update"
+            app:icon="@drawable/baseline_arrow_drop_down_24"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/scrollContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
-            android:textSize="8sp"
-            app:layout_constraintBottom_toTopOf="@+id/scrollContainer"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
         <TextView
             android:id="@+id/tvLastUpdate"
@@ -56,7 +61,6 @@
             android:text="@string/updated_time"
             app:layout_constraintBottom_toBottomOf="@+id/btnUpdate"
             app:layout_constraintEnd_toEndOf="parent"
-
             app:layout_constraintTop_toTopOf="@+id/btnUpdate" />
 
 

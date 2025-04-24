@@ -32,6 +32,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -50,6 +53,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
 
 
 
@@ -144,58 +149,68 @@ class MainActivity : AppCompatActivity() {
         val spinAnim: Animation = AnimationUtils.loadAnimation(this, R.anim.spin)
         binding.btnScrollRetry.setOnClickListener { loadData(spinAnim) }
 
+        // 1) Wire both initial + update clicks to loadData()
+        binding.btnUpdate.setOnClickListener { loadData(spinAnim) }
+        loadData(spinAnim)
+
         // 7) Initial load
         loadData(spinAnim)
     }
 
     private fun loadData(spinAnim: Animation) {
-        // 1) hide list + error, show spinner
-        binding.currencyRecyclerView.visibility = View.GONE
-        binding.scrollErrorLayout.visibility   = View.GONE
+        // show spinner / hide everything else
         binding.ivSpinnerOverlay.apply {
             visibility = View.VISIBLE
             startAnimation(spinAnim)
         }
+        binding.scrollErrorLayout.visibility = View.GONE
+        binding.currencyRecyclerView.visibility = View.GONE
 
-        // 2) offline?
         if (!isNetworkAvailable()) {
+            // offline → show error
             binding.ivSpinnerOverlay.apply {
                 clearAnimation()
                 visibility = View.GONE
             }
             binding.scrollErrorLayout.visibility = View.VISIBLE
-            binding.btnScrollRetry.setOnClickListener { loadData(spinAnim) }
             return
         }
 
-        // 3) fetch
+        // otherwise fetch
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val all = api.getAllCurrencies()
                 val rates = api.getEurRates().eur
+
                 withContext(Dispatchers.Main) {
                     fullCurrencyList = all.map { CurrencyInfo(it.key, it.value) }
                     adapter.exchangeRates = rates
                     initDefaultCurrencies()
-                    // show list
+
+                    // stamp «last updated»
+                    val now = SimpleDateFormat("HH:mm dd.MM.yyyy", Locale.getDefault())
+                        .format(Date())
+                    binding.tvLastUpdate.text = "Updated $now"
+
+                    // reveal your list
                     binding.ivSpinnerOverlay.apply {
                         clearAnimation()
                         visibility = View.GONE
                     }
                     binding.currencyRecyclerView.visibility = View.VISIBLE
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     binding.ivSpinnerOverlay.apply {
                         clearAnimation()
                         visibility = View.GONE
                     }
                     binding.scrollErrorLayout.visibility = View.VISIBLE
-                    binding.btnScrollRetry.setOnClickListener { loadData(spinAnim) }
                 }
             }
         }
     }
+
 
     private fun isNetworkAvailable(): Boolean {
         val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
