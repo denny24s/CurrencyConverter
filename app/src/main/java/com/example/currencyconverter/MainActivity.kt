@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.EditText
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -37,7 +36,6 @@ import java.util.Date
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: CurrencyAdapter
     private var fullCurrencyList: List<CurrencyInfo> = emptyList()
@@ -51,54 +49,47 @@ class MainActivity : AppCompatActivity() {
             .create(CurrencyApi::class.java)
     }
 
+    private val PREFS = "settings"
+    private val KEY_CURRENCY_LIST = "currency_list"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
-
-
-
-        // 0) Restore saved theme
-        val prefs = getSharedPreferences("settings", MODE_PRIVATE)
-        val savedMode = prefs.getInt(
-            "theme_mode",
-            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        // Restore theme
+        val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
+        AppCompatDelegate.setDefaultNightMode(
+            prefs.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         )
-        AppCompatDelegate.setDefaultNightMode(savedMode)
 
-        // 1) Inflate + setContentView
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 2) Dark‑mode switch in your nav drawer
+        // NAV drawer: theme switch + toasts + info
         val nav = findViewById<NavigationView>(R.id.navViewContainer)
-        val sw = nav.findViewById<SwitchMaterial>(R.id.switchDarkMode)
-        sw.isChecked = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
-        sw.setOnCheckedChangeListener { _, checked ->
-            val mode = if (checked) AppCompatDelegate.MODE_NIGHT_YES
-            else AppCompatDelegate.MODE_NIGHT_NO
-            AppCompatDelegate.setDefaultNightMode(mode)
-            prefs.edit().putInt("theme_mode", mode).apply()
+        nav.findViewById<SwitchMaterial>(R.id.switchDarkMode).apply {
+            isChecked = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
+            setOnCheckedChangeListener { _, checked ->
+                val mode = if (checked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+                AppCompatDelegate.setDefaultNightMode(mode)
+                prefs.edit().putInt("theme_mode", mode).apply()
+            }
         }
-
-        // Info:
         nav.findViewById<View>(R.id.infoRow).setOnClickListener {
             startActivity(Intent(this, InfoActivity::class.java))
             binding.drawerLayout.closeDrawer(GravityCompat.START)
         }
-
-// The four “toast” rows:
         listOf(
-            R.id.languageRow    to "Language clicked",
-            R.id.shareRow       to "Share clicked",
-            R.id.feedbackRow    to "Feedback clicked",
-            R.id.rateRow        to "Rate clicked"
+            R.id.languageRow to "Language clicked",
+            R.id.shareRow to "Share clicked",
+            R.id.feedbackRow to "Feedback clicked",
+            R.id.rateRow to "Rate clicked"
         ).forEach { (id, msg) ->
             nav.findViewById<View>(id).setOnClickListener {
                 Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
             }
         }
-        // 3) Setup RecyclerView + Adapter
+
+        // Setup RecyclerView & Adapter
         adapter = CurrencyAdapter(
             context = this,
             items = mutableListOf(),
@@ -112,10 +103,12 @@ class MainActivity : AppCompatActivity() {
                 adapter.recalculateAll(basePos)
             }
         )
-        binding.currencyRecyclerView.layoutManager = LinearLayoutManager(this)
-        binding.currencyRecyclerView.adapter = adapter
+        binding.currencyRecyclerView.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = this@MainActivity.adapter
+        }
 
-        // 4) Drag & Swipe
+        // Drag & swipe
         ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.UP or ItemTouchHelper.DOWN,
             ItemTouchHelper.LEFT
@@ -124,41 +117,32 @@ class MainActivity : AppCompatActivity() {
                 rv: RecyclerView,
                 vh: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder
-            ) = adapter.moveItem(vh.adapterPosition, target.adapterPosition).let { true }
+            ) = adapter.moveItem(vh.adapterPosition, target.adapterPosition).let {
+                saveCurrencyList()
+                true
+            }
 
             override fun onSwiped(vh: RecyclerView.ViewHolder, dir: Int) {
                 adapter.removeItem(vh.adapterPosition)
+                saveCurrencyList()
             }
         }).attachToRecyclerView(binding.currencyRecyclerView)
 
-        // 5) Drawer + other buttons
+        // Buttons
         binding.btnMenu.setOnClickListener {
-            binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.START)
+            binding.drawerLayout.openDrawer(GravityCompat.START)
         }
-        binding.btnUpdate.setOnClickListener {
-            // you can call loadData() here if you want refresh on update press
-        }
-        binding.btnCalculator.setOnClickListener {
-            startActivity(Intent(this, CalculatorActivity::class.java))
-        }
-        binding.btnAdd.setOnClickListener {
-            showCurrencyBottomSheet(::addNewCurrencyRow)
-        }
+        binding.btnAdd.setOnClickListener { showCurrencyBottomSheet(::addNewCurrencyRow) }
 
-        // 6) Spinner animation + retry
         val spinAnim: Animation = AnimationUtils.loadAnimation(this, R.anim.spin)
+        binding.btnUpdate.setOnClickListener { loadData(spinAnim) }
         binding.btnScrollRetry.setOnClickListener { loadData(spinAnim) }
 
-        // 1) Wire both initial + update clicks to loadData()
-        binding.btnUpdate.setOnClickListener { loadData(spinAnim) }
-        loadData(spinAnim)
-
-        // 7) Initial load
+        // Initial load
         loadData(spinAnim)
     }
 
     private fun loadData(spinAnim: Animation) {
-        // show spinner / hide everything else
         binding.ivSpinnerOverlay.apply {
             visibility = View.VISIBLE
             startAnimation(spinAnim)
@@ -167,105 +151,145 @@ class MainActivity : AppCompatActivity() {
         binding.currencyRecyclerView.visibility = View.GONE
 
         if (!isNetworkAvailable()) {
-            // offline → show error
-            binding.ivSpinnerOverlay.apply {
-                clearAnimation()
-                visibility = View.GONE
-            }
+            binding.ivSpinnerOverlay.clearAnimation()
+            binding.ivSpinnerOverlay.visibility = View.GONE
             binding.scrollErrorLayout.visibility = View.VISIBLE
             return
         }
 
-        // otherwise fetch
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val all = api.getAllCurrencies()
-                val rates = api.getEurRates().eur
-
+                val allCurrencies = api.getAllCurrencies()
+                val eurRates = api.getEurRates().eur
                 withContext(Dispatchers.Main) {
-                    fullCurrencyList = all.map { CurrencyInfo(it.key, it.value) }
-                    adapter.exchangeRates = rates
-                    initDefaultCurrencies()
+                    fullCurrencyList = allCurrencies.map { CurrencyInfo(it.key, it.value) }
+                    adapter.exchangeRates = eurRates
 
-                    // stamp «last updated»
+                    val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
+                    val saved = prefs.getString(KEY_CURRENCY_LIST, null)
+
+                    // Build new list
+                    val newList = mutableListOf<CurrencyItem>()
+                    when {
+                        saved == null -> {
+                            // first run defaults
+                            fullCurrencyList.find { it.code=="eur" }?.let {
+                                newList += CurrencyItem("eur", it.name, eurRates["eur"] ?: 1.0)
+                            }
+                            fullCurrencyList.find { it.code=="usd" }?.let {
+                                newList += CurrencyItem("usd", it.name, eurRates["usd"] ?: 1.0)
+                            }
+                            fullCurrencyList.find { it.code=="uah" }?.let {
+                                newList += CurrencyItem("uah", it.name, eurRates["uah"] ?: 1.0)
+                            }
+                        }
+                        saved.isEmpty() -> {
+                            // user cleared all → leave empty
+                        }
+                        else -> {
+                            // restore saved order
+                            for (code in saved.split(",")) {
+                                fullCurrencyList.firstOrNull { it.code==code }?.let {
+                                    newList += CurrencyItem(code, it.name, eurRates[code] ?: 1.0)
+                                }
+                            }
+                        }
+                    }
+
+                    // Swap in one go
+                    adapter.items.clear()
+                    adapter.items.addAll(newList)
+                    adapter.notifyDataSetChanged()
+
+                    // show/hide empty placeholder
+                    if (adapter.items.isEmpty()) {
+                        binding.tvEmptyList.visibility = View.VISIBLE
+                        binding.currencyRecyclerView.visibility = View.GONE
+                    } else {
+                        binding.tvEmptyList.visibility = View.GONE
+                        binding.currencyRecyclerView.visibility = View.VISIBLE
+                    }
+
+
+                    // Recalculate
+                    if (adapter.items.isNotEmpty()) adapter.recalculateAll(0)
+
+                    // Timestamp
                     val now = SimpleDateFormat("HH:mm dd.MM.yyyy", Locale.getDefault())
                         .format(Date())
                     binding.tvLastUpdate.text = "Updated $now"
 
-                    // reveal your list
-                    binding.ivSpinnerOverlay.apply {
-                        clearAnimation()
-                        visibility = View.GONE
-                    }
+                    binding.ivSpinnerOverlay.clearAnimation()
+                    binding.ivSpinnerOverlay.visibility = View.GONE
                     binding.currencyRecyclerView.visibility = View.VISIBLE
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    binding.ivSpinnerOverlay.apply {
-                        clearAnimation()
-                        visibility = View.GONE
-                    }
+                    binding.ivSpinnerOverlay.clearAnimation()
+                    binding.ivSpinnerOverlay.visibility = View.GONE
                     binding.scrollErrorLayout.visibility = View.VISIBLE
                 }
             }
         }
     }
 
-
-    private fun isNetworkAvailable(): Boolean {
-        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val net = cm.activeNetwork ?: return false
-        val caps = cm.getNetworkCapabilities(net) ?: return false
-        return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-    }
-
-    private fun initDefaultCurrencies() {
-        val euro = "eur"; val usd = "usd"; val uah = "uah"
-        val r = adapter.exchangeRates
-        val eRate = r[euro] ?: 1.0
-        val uRate = r[usd]  ?: 1.0
-        val hRate = r[uah]  ?: 1.0
-
-        fullCurrencyList.find { it.code==euro }?.let {
-            adapter.addNewCurrency(euro, it.name, eRate)
-        }
-        fullCurrencyList.find { it.code==usd }?.let {
-            adapter.addNewCurrency(usd, it.name, (1.0/eRate)*uRate)
-        }
-        fullCurrencyList.find { it.code==uah }?.let {
-            adapter.addNewCurrency(uah, it.name, (1.0/eRate)*hRate)
-        }
-
-        adapter.recalculateAll(0)
-    }
-
     private fun addNewCurrencyRow(code: String) {
+        if (adapter.items.isEmpty()) {
+            // first insertion into empty list
+            fullCurrencyList.firstOrNull { it.code==code }?.let {
+                val rate = adapter.exchangeRates[code] ?: 1.0
+                adapter.addNewCurrency(code, it.name, rate)
+                selectedBasePosition = 0
+                saveCurrencyList()
+            }
+            return
+        }
+
         val base = adapter.items.getOrNull(selectedBasePosition) ?: return
-        val baseValEur = base.value / (adapter.exchangeRates[base.currency] ?: 1.0)
-        val newRate = adapter.exchangeRates[code] ?: 1.0
-        val name = fullCurrencyList.find { it.code==code }?.name ?: code
-        adapter.addNewCurrency(code, name, baseValEur * newRate)
+        val baseE = base.value / (adapter.exchangeRates[base.currency] ?: 1.0)
+        val rate  = adapter.exchangeRates[code] ?: 1.0
+        val name  = fullCurrencyList.firstOrNull { it.code==code }?.name ?: code
+
+        adapter.addNewCurrency(code, name, baseE * rate)
+        selectedBasePosition = adapter.items.size - 1
+        saveCurrencyList()
+    }
+
+    private fun saveCurrencyList() {
+        val csv = adapter.items.joinToString(",") { it.currency }
+        getSharedPreferences(PREFS, MODE_PRIVATE)
+            .edit()
+            .putString(KEY_CURRENCY_LIST, csv)
+            .apply()
     }
 
     private fun changeCurrencyForItem(pos: Int, newCode: String) {
         val old = adapter.items[pos]
-        val oldValEur = old.value / (adapter.exchangeRates[old.currency] ?: 1.0)
+        val oldEur = old.value / (adapter.exchangeRates[old.currency] ?: 1.0)
         val newRate = adapter.exchangeRates[newCode] ?: 1.0
-        val name = fullCurrencyList.find { it.code==newCode }?.name ?: newCode
-        adapter.updateItemCurrency(pos, newCode, name, oldValEur * newRate)
+        val name = fullCurrencyList.firstOrNull { it.code==newCode }?.name ?: newCode
+        adapter.updateItemCurrency(pos, newCode, name, oldEur * newRate)
         adapter.recalculateAll(pos)
+        saveCurrencyList()
     }
 
-    private fun showCurrencyBottomSheet(onPick: (String)->Unit) {
-        val parent = findViewById<ViewGroup>(android.R.id.content)
-        val view = layoutInflater.inflate(R.layout.bottom_sheet_currencies, parent, false)
-        val dlg = BottomSheetDialog(this).also { it.setContentView(view) }
+    private fun isNetworkAvailable(): Boolean {
+        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val net= cm.activeNetwork ?: return false
+        val caps= cm.getNetworkCapabilities(net) ?: return false
+        return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
 
-        val btnClose = view.findViewById<ImageView>(R.id.btnClose)
+    private fun showCurrencyBottomSheet(onPick: (String) -> Unit) {
+        val parent = findViewById<ViewGroup>(android.R.id.content)
+        val view   = layoutInflater.inflate(R.layout.bottom_sheet_currencies, parent, false)
+        val dlg    = BottomSheetDialog(this).apply { setContentView(view) }
+
+        val btnClose  = view.findViewById<ImageView>(R.id.btnClose)
         val btnSearch = view.findViewById<ImageView>(R.id.btnSearch)
-        val tvTitle = view.findViewById<TextView>(R.id.tvTitle)
-        val etSearch = view.findViewById<EditText>(R.id.etSearch)
-        val rv = view.findViewById<RecyclerView>(R.id.currenciesRecycler)
+        val tvTitle   = view.findViewById<TextView>(R.id.tvTitle)
+        val etSearch  = view.findViewById<EditText>(R.id.etSearch)
+        val rv        = view.findViewById<RecyclerView>(R.id.currenciesRecycler)
 
         rv.layoutManager = LinearLayoutManager(this)
         val sheetAdapter = CurrenciesBottomSheetAdapter(fullCurrencyList) {
@@ -289,22 +313,19 @@ class MainActivity : AppCompatActivity() {
                 sheetAdapter.updateData(fullCurrencyList)
             }
         }
-        etSearch.addTextChangedListener(object : TextWatcher {
+        etSearch.addTextChangedListener(object: TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, st: Int, bf: Int, ac: Int) {}
             override fun onTextChanged(s: CharSequence?, st: Int, bf: Int, ac: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 val q = s.toString().lowercase()
                 sheetAdapter.updateData(
                     fullCurrencyList.filter {
-                        it.code.lowercase().contains(q) ||
-                                it.name.lowercase().contains(q)
+                        it.code.lowercase().contains(q) || it.name.lowercase().contains(q)
                     }
                 )
             }
         })
 
         dlg.show()
-
-
     }
 }

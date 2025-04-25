@@ -82,6 +82,24 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
+                <!-- ④ “Empty list” placeholder -->
+                <TextView
+                    android:id="@+id/tvEmptyList"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Press on 'Add' to add currencies"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:textStyle="italic"
+                    android:visibility="gone"
+                    android:layout_marginTop="64dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/scrollContent"
+                    app:layout_constraintEnd_toEndOf="@+id/scrollContent"
+                    app:layout_constraintStart_toStartOf="@+id/scrollContent"
+                    app:layout_constraintTop_toTopOf="@+id/scrollContent"
+                    tools:visibility="visible" />
+
 
 
                 <androidx.recyclerview.widget.RecyclerView
