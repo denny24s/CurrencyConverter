@@ -82,6 +82,23 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
+
+
+
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/currencyRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:background="@color/test"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0" />
+
                 <!-- ④ “Empty list” placeholder -->
                 <TextView
                     android:id="@+id/tvEmptyList"
@@ -99,21 +116,6 @@
                     app:layout_constraintStart_toStartOf="@+id/scrollContent"
                     app:layout_constraintTop_toTopOf="@+id/scrollContent"
                     tools:visibility="visible" />
-
-
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/currencyRecyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-
-                    android:background="@color/test"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0" />
 
             <!-- ② Spinner over the list -->
                 <ImageView

@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
     private var fullCurrencyList: List<CurrencyInfo> = emptyList()
     private var selectedBasePosition = 0
 
+    // Retrofit API
     private val api: CurrencyApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/")
@@ -49,29 +50,31 @@ class MainActivity : AppCompatActivity() {
             .create(CurrencyApi::class.java)
     }
 
+    // prefs key for saved currency codes + theme
     private val PREFS = "settings"
     private val KEY_CURRENCY_LIST = "currency_list"
+    private val KEY_THEME = "theme_mode"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Restore theme
+        // 0) restore theme
         val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
         AppCompatDelegate.setDefaultNightMode(
-            prefs.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            prefs.getInt(KEY_THEME, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         )
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // NAV drawer: theme switch + toasts + info
+        // 1) Setup nav‐drawer items
         val nav = findViewById<NavigationView>(R.id.navViewContainer)
         nav.findViewById<SwitchMaterial>(R.id.switchDarkMode).apply {
             isChecked = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
             setOnCheckedChangeListener { _, checked ->
                 val mode = if (checked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
                 AppCompatDelegate.setDefaultNightMode(mode)
-                prefs.edit().putInt("theme_mode", mode).apply()
+                prefs.edit().putInt(KEY_THEME, mode).apply()
             }
         }
         nav.findViewById<View>(R.id.infoRow).setOnClickListener {
@@ -80,16 +83,16 @@ class MainActivity : AppCompatActivity() {
         }
         listOf(
             R.id.languageRow to "Language clicked",
-            R.id.shareRow to "Share clicked",
+            R.id.shareRow    to "Share clicked",
             R.id.feedbackRow to "Feedback clicked",
-            R.id.rateRow to "Rate clicked"
+            R.id.rateRow     to "Rate clicked"
         ).forEach { (id, msg) ->
             nav.findViewById<View>(id).setOnClickListener {
                 Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Setup RecyclerView & Adapter
+        // 2) Recycler + Adapter
         adapter = CurrencyAdapter(
             context = this,
             items = mutableListOf(),
@@ -108,7 +111,7 @@ class MainActivity : AppCompatActivity() {
             adapter = this@MainActivity.adapter
         }
 
-        // Drag & swipe
+        // 3) Drag & swipe
         ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.UP or ItemTouchHelper.DOWN,
             ItemTouchHelper.LEFT
@@ -125,30 +128,37 @@ class MainActivity : AppCompatActivity() {
             override fun onSwiped(vh: RecyclerView.ViewHolder, dir: Int) {
                 adapter.removeItem(vh.adapterPosition)
                 saveCurrencyList()
+                updateEmptyState()
             }
         }).attachToRecyclerView(binding.currencyRecyclerView)
 
-        // Buttons
+        // 4) Buttons
         binding.btnMenu.setOnClickListener {
             binding.drawerLayout.openDrawer(GravityCompat.START)
         }
         binding.btnAdd.setOnClickListener { showCurrencyBottomSheet(::addNewCurrencyRow) }
+        binding.btnCalculator.setOnClickListener {
+            startActivity(Intent(this, CalculatorActivity::class.java))
+        }
 
-        val spinAnim: Animation = AnimationUtils.loadAnimation(this, R.anim.spin)
+        // 5) Update + Retry
+        val spinAnim = AnimationUtils.loadAnimation(this, R.anim.spin)
         binding.btnUpdate.setOnClickListener { loadData(spinAnim) }
         binding.btnScrollRetry.setOnClickListener { loadData(spinAnim) }
 
-        // Initial load
+        // 6) initial load
         loadData(spinAnim)
     }
 
     private fun loadData(spinAnim: Animation) {
+        // show spinner
         binding.ivSpinnerOverlay.apply {
             visibility = View.VISIBLE
             startAnimation(spinAnim)
         }
         binding.scrollErrorLayout.visibility = View.GONE
         binding.currencyRecyclerView.visibility = View.GONE
+        binding.tvEmptyList.visibility = View.GONE
 
         if (!isNetworkAvailable()) {
             binding.ivSpinnerOverlay.clearAnimation()
@@ -160,35 +170,29 @@ class MainActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val allCurrencies = api.getAllCurrencies()
-                val eurRates = api.getEurRates().eur
+                val eurRates      = api.getEurRates().eur
+
                 withContext(Dispatchers.Main) {
-                    fullCurrencyList = allCurrencies.map { CurrencyInfo(it.key, it.value) }
+                    fullCurrencyList      = allCurrencies.map { CurrencyInfo(it.key, it.value) }
                     adapter.exchangeRates = eurRates
 
+                    // restore or default
                     val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
                     val saved = prefs.getString(KEY_CURRENCY_LIST, null)
-
-                    // Build new list
                     val newList = mutableListOf<CurrencyItem>()
                     when {
-                        saved == null -> {
-                            // first run defaults
-                            fullCurrencyList.find { it.code=="eur" }?.let {
-                                newList += CurrencyItem("eur", it.name, eurRates["eur"] ?: 1.0)
-                            }
-                            fullCurrencyList.find { it.code=="usd" }?.let {
-                                newList += CurrencyItem("usd", it.name, eurRates["usd"] ?: 1.0)
-                            }
-                            fullCurrencyList.find { it.code=="uah" }?.let {
-                                newList += CurrencyItem("uah", it.name, eurRates["uah"] ?: 1.0)
+                        saved == null -> { // first run
+                            listOf("eur","usd","uah").forEach { code ->
+                                fullCurrencyList.find { it.code==code }?.let {
+                                    newList += CurrencyItem(code, it.name, eurRates[code] ?: 1.0)
+                                }
                             }
                         }
                         saved.isEmpty() -> {
-                            // user cleared all → leave empty
+                            // user cleared → leave empty
                         }
                         else -> {
-                            // restore saved order
-                            for (code in saved.split(",")) {
+                            saved.split(",").forEach { code ->
                                 fullCurrencyList.firstOrNull { it.code==code }?.let {
                                     newList += CurrencyItem(code, it.name, eurRates[code] ?: 1.0)
                                 }
@@ -196,33 +200,28 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
 
-                    // Swap in one go
-                    adapter.items.clear()
-                    adapter.items.addAll(newList)
+                    // swap in one go
+                    adapter.items.apply {
+                        clear()
+                        addAll(newList)
+                    }
                     adapter.notifyDataSetChanged()
 
-                    // show/hide empty placeholder
-                    if (adapter.items.isEmpty()) {
-                        binding.tvEmptyList.visibility = View.VISIBLE
-                        binding.currencyRecyclerView.visibility = View.GONE
-                    } else {
-                        binding.tvEmptyList.visibility = View.GONE
-                        binding.currencyRecyclerView.visibility = View.VISIBLE
-                    }
+                    // toggle empty message
+                    updateEmptyState()
 
-
-                    // Recalculate
+                    // recalc if any
                     if (adapter.items.isNotEmpty()) adapter.recalculateAll(0)
 
-                    // Timestamp
+                    // timestamp
                     val now = SimpleDateFormat("HH:mm dd.MM.yyyy", Locale.getDefault())
                         .format(Date())
                     binding.tvLastUpdate.text = "Updated $now"
 
                     binding.ivSpinnerOverlay.clearAnimation()
                     binding.ivSpinnerOverlay.visibility = View.GONE
-                    binding.currencyRecyclerView.visibility = View.VISIBLE
                 }
+
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     binding.ivSpinnerOverlay.clearAnimation()
@@ -234,13 +233,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addNewCurrencyRow(code: String) {
+        // If list was empty, clear placeholder
         if (adapter.items.isEmpty()) {
-            // first insertion into empty list
             fullCurrencyList.firstOrNull { it.code==code }?.let {
                 val rate = adapter.exchangeRates[code] ?: 1.0
                 adapter.addNewCurrency(code, it.name, rate)
                 selectedBasePosition = 0
                 saveCurrencyList()
+                updateEmptyState()
             }
             return
         }
@@ -253,6 +253,18 @@ class MainActivity : AppCompatActivity() {
         adapter.addNewCurrency(code, name, baseE * rate)
         selectedBasePosition = adapter.items.size - 1
         saveCurrencyList()
+        updateEmptyState()
+    }
+
+    private fun changeCurrencyForItem(pos: Int, newCode: String) {
+        val old    = adapter.items[pos]
+        val oldEur = old.value / (adapter.exchangeRates[old.currency] ?: 1.0)
+        val newRate= adapter.exchangeRates[newCode] ?: 1.0
+        val name   = fullCurrencyList.firstOrNull { it.code==newCode }?.name ?: newCode
+
+        adapter.updateItemCurrency(pos, newCode, name, oldEur * newRate)
+        adapter.recalculateAll(pos)
+        saveCurrencyList()
     }
 
     private fun saveCurrencyList() {
@@ -263,19 +275,19 @@ class MainActivity : AppCompatActivity() {
             .apply()
     }
 
-    private fun changeCurrencyForItem(pos: Int, newCode: String) {
-        val old = adapter.items[pos]
-        val oldEur = old.value / (adapter.exchangeRates[old.currency] ?: 1.0)
-        val newRate = adapter.exchangeRates[newCode] ?: 1.0
-        val name = fullCurrencyList.firstOrNull { it.code==newCode }?.name ?: newCode
-        adapter.updateItemCurrency(pos, newCode, name, oldEur * newRate)
-        adapter.recalculateAll(pos)
-        saveCurrencyList()
+    private fun updateEmptyState() {
+        if (adapter.items.isEmpty()) {
+            binding.tvEmptyList.visibility          = View.VISIBLE
+            binding.currencyRecyclerView.visibility = View.GONE
+        } else {
+            binding.tvEmptyList.visibility          = View.GONE
+            binding.currencyRecyclerView.visibility = View.VISIBLE
+        }
     }
 
     private fun isNetworkAvailable(): Boolean {
-        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val net= cm.activeNetwork ?: return false
+        val cm  = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val net = cm.activeNetwork ?: return false
         val caps= cm.getNetworkCapabilities(net) ?: return false
         return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
@@ -313,14 +325,15 @@ class MainActivity : AppCompatActivity() {
                 sheetAdapter.updateData(fullCurrencyList)
             }
         }
-        etSearch.addTextChangedListener(object: TextWatcher {
+        etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, st: Int, bf: Int, ac: Int) {}
             override fun onTextChanged(s: CharSequence?, st: Int, bf: Int, ac: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 val q = s.toString().lowercase()
                 sheetAdapter.updateData(
                     fullCurrencyList.filter {
-                        it.code.lowercase().contains(q) || it.name.lowercase().contains(q)
+                        it.code.lowercase().contains(q) ||
+                                it.name.lowercase().contains(q)
                     }
                 )
             }
