@@ -72,7 +72,8 @@ class MainActivity : AppCompatActivity() {
         nav.findViewById<SwitchMaterial>(R.id.switchDarkMode).apply {
             isChecked = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
             setOnCheckedChangeListener { _, checked ->
-                val mode = if (checked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+                val mode =
+                    if (checked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
                 AppCompatDelegate.setDefaultNightMode(mode)
                 prefs.edit().putInt(KEY_THEME, mode).apply()
             }
@@ -83,9 +84,9 @@ class MainActivity : AppCompatActivity() {
         }
         listOf(
             R.id.languageRow to "Language clicked",
-            R.id.shareRow    to "Share clicked",
+            R.id.shareRow to "Share clicked",
             R.id.feedbackRow to "Feedback clicked",
-            R.id.rateRow     to "Rate clicked"
+            R.id.rateRow to "Rate clicked"
         ).forEach { (id, msg) ->
             nav.findViewById<View>(id).setOnClickListener {
                 Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
@@ -170,10 +171,10 @@ class MainActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val allCurrencies = api.getAllCurrencies()
-                val eurRates      = api.getEurRates().eur
+                val eurRates = api.getEurRates().eur
 
                 withContext(Dispatchers.Main) {
-                    fullCurrencyList      = allCurrencies.map { CurrencyInfo(it.key, it.value) }
+                    fullCurrencyList = allCurrencies.map { CurrencyInfo(it.key, it.value) }
                     adapter.exchangeRates = eurRates
 
                     // restore or default
@@ -182,18 +183,20 @@ class MainActivity : AppCompatActivity() {
                     val newList = mutableListOf<CurrencyItem>()
                     when {
                         saved == null -> { // first run
-                            listOf("eur","usd","uah").forEach { code ->
-                                fullCurrencyList.find { it.code==code }?.let {
+                            listOf("eur", "usd", "uah").forEach { code ->
+                                fullCurrencyList.find { it.code == code }?.let {
                                     newList += CurrencyItem(code, it.name, eurRates[code] ?: 1.0)
                                 }
                             }
                         }
+
                         saved.isEmpty() -> {
                             // user cleared → leave empty
                         }
+
                         else -> {
                             saved.split(",").forEach { code ->
-                                fullCurrencyList.firstOrNull { it.code==code }?.let {
+                                fullCurrencyList.firstOrNull { it.code == code }?.let {
                                     newList += CurrencyItem(code, it.name, eurRates[code] ?: 1.0)
                                 }
                             }
@@ -235,7 +238,7 @@ class MainActivity : AppCompatActivity() {
     private fun addNewCurrencyRow(code: String) {
         // If list was empty, clear placeholder
         if (adapter.items.isEmpty()) {
-            fullCurrencyList.firstOrNull { it.code==code }?.let {
+            fullCurrencyList.firstOrNull { it.code == code }?.let {
                 val rate = adapter.exchangeRates[code] ?: 1.0
                 adapter.addNewCurrency(code, it.name, rate)
                 selectedBasePosition = 0
@@ -247,8 +250,8 @@ class MainActivity : AppCompatActivity() {
 
         val base = adapter.items.getOrNull(selectedBasePosition) ?: return
         val baseE = base.value / (adapter.exchangeRates[base.currency] ?: 1.0)
-        val rate  = adapter.exchangeRates[code] ?: 1.0
-        val name  = fullCurrencyList.firstOrNull { it.code==code }?.name ?: code
+        val rate = adapter.exchangeRates[code] ?: 1.0
+        val name = fullCurrencyList.firstOrNull { it.code == code }?.name ?: code
 
         adapter.addNewCurrency(code, name, baseE * rate)
         selectedBasePosition = adapter.items.size - 1
@@ -257,10 +260,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun changeCurrencyForItem(pos: Int, newCode: String) {
-        val old    = adapter.items[pos]
+        val old = adapter.items[pos]
         val oldEur = old.value / (adapter.exchangeRates[old.currency] ?: 1.0)
-        val newRate= adapter.exchangeRates[newCode] ?: 1.0
-        val name   = fullCurrencyList.firstOrNull { it.code==newCode }?.name ?: newCode
+        val newRate = adapter.exchangeRates[newCode] ?: 1.0
+        val name = fullCurrencyList.firstOrNull { it.code == newCode }?.name ?: newCode
 
         adapter.updateItemCurrency(pos, newCode, name, oldEur * newRate)
         adapter.recalculateAll(pos)
@@ -277,31 +280,31 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateEmptyState() {
         if (adapter.items.isEmpty()) {
-            binding.tvEmptyList.visibility          = View.VISIBLE
+            binding.tvEmptyList.visibility = View.VISIBLE
             binding.currencyRecyclerView.visibility = View.GONE
         } else {
-            binding.tvEmptyList.visibility          = View.GONE
+            binding.tvEmptyList.visibility = View.GONE
             binding.currencyRecyclerView.visibility = View.VISIBLE
         }
     }
 
     private fun isNetworkAvailable(): Boolean {
-        val cm  = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val net = cm.activeNetwork ?: return false
-        val caps= cm.getNetworkCapabilities(net) ?: return false
+        val caps = cm.getNetworkCapabilities(net) ?: return false
         return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
     private fun showCurrencyBottomSheet(onPick: (String) -> Unit) {
         val parent = findViewById<ViewGroup>(android.R.id.content)
-        val view   = layoutInflater.inflate(R.layout.bottom_sheet_currencies, parent, false)
-        val dlg    = BottomSheetDialog(this).apply { setContentView(view) }
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_currencies, parent, false)
+        val dlg = BottomSheetDialog(this).apply { setContentView(view) }
 
-        val btnClose  = view.findViewById<ImageView>(R.id.btnClose)
+        val btnClose = view.findViewById<ImageView>(R.id.btnClose)
         val btnSearch = view.findViewById<ImageView>(R.id.btnSearch)
-        val tvTitle   = view.findViewById<TextView>(R.id.tvTitle)
-        val etSearch  = view.findViewById<EditText>(R.id.etSearch)
-        val rv        = view.findViewById<RecyclerView>(R.id.currenciesRecycler)
+        val tvTitle = view.findViewById<TextView>(R.id.tvTitle)
+        val etSearch = view.findViewById<EditText>(R.id.etSearch)
+        val rv = view.findViewById<RecyclerView>(R.id.currenciesRecycler)
 
         rv.layoutManager = LinearLayoutManager(this)
         val sheetAdapter = CurrenciesBottomSheetAdapter(fullCurrencyList) {
@@ -338,7 +341,6 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         })
-
         dlg.show()
     }
 }
