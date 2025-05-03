@@ -1,4 +1,4 @@
-package com.example.currencyconverter
+package com.example.currencyconverter.ui.calculator
 
 object SimpleCalculator {
     fun evaluate(expression: String): Double {

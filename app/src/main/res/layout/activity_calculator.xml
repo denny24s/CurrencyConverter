@@ -6,7 +6,7 @@
     android:id="@+id/calculatorRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CalculatorActivity"
+    tools:context=".ui.calculator.CalculatorActivity"
     android:padding="16dp">
 
     <!-- Back button -->

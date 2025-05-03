@@ -1,4 +1,4 @@
-package com.example.currencyconverter
+package com.example.domain.model
 
 data class CurrencyInfo(
     val code: String,

@@ -1,10 +1,11 @@
-package com.example.currencyconverter
+package com.example.currencyconverter.ui.add
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.currencyconverter.databinding.ItemCurrencyBinding
+import com.example.domain.model.CurrencyInfo
 
 // Adapter updater interface to allow search filtering.
 interface CurrenciesBottomSheetAdapterUpdater {

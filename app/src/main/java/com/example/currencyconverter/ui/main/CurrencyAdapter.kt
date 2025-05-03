@@ -1,4 +1,4 @@
-package com.example.currencyconverter
+package com.example.currencyconverter.ui.main
 
 import android.content.Context
 import android.text.Editable
@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.currencyconverter.CurrencyItem
 import com.example.currencyconverter.databinding.ItemCurrencyRowBinding
 
 class CurrencyAdapter(

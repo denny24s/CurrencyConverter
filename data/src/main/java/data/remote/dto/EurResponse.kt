@@ -1,4 +1,4 @@
-package com.example.currencyconverter
+package data.remote.dto
 
 data class EurResponse(
     val date: String,

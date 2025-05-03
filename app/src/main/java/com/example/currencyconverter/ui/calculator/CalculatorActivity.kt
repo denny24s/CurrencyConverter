@@ -1,4 +1,4 @@
-package com.example.currencyconverter
+package com.example.currencyconverter.ui.calculator
 
 import android.content.Context
 import android.os.Bundle

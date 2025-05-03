@@ -1,4 +1,4 @@
-package com.example.currencyconverter
+package com.example.currencyconverter.ui.main
 
 import android.content.Context
 import android.content.Intent
@@ -21,10 +21,17 @@ import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.currencyconverter.ui.calculator.CalculatorActivity
+import com.example.currencyconverter.ui.add.CurrenciesBottomSheetAdapter
+import com.example.currencyconverter.CurrencyItem
+import com.example.currencyconverter.ui.info.InfoActivity
+import com.example.currencyconverter.R
 import com.example.currencyconverter.databinding.ActivityMainBinding
+import com.example.domain.model.CurrencyInfo
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.switchmaterial.SwitchMaterial
+import data.remote.api.CurrencyApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

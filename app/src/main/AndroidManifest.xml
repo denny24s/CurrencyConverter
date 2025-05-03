@@ -16,13 +16,13 @@
         android:theme="@style/Theme.CurrencyConverter"
         tools:targetApi="31">
         <activity
-            android:name=".InfoActivity"
+            android:name=".ui.info.InfoActivity"
             android:exported="false" />
         <activity
-            android:name=".CalculatorActivity"
+            android:name=".ui.calculator.CalculatorActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.main.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
