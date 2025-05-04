@@ -17,10 +17,11 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:contentDescription="@string/app_name"
+            android:fontFamily="@font/jersey_font_family"
             android:src="@drawable/baseline_menu_24"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <!-- Divider 1 -->
         <View
@@ -53,6 +54,7 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
+                android:fontFamily="@font/jersey_font_family"
                 android:id="@+id/tvDarkMode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -92,6 +94,7 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
+                android:fontFamily="@font/jersey_font_family"
                 android:id="@+id/tvLanguage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -134,6 +137,7 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
+                android:fontFamily="@font/jersey_font_family"
                 android:id="@+id/tvShare"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -165,6 +169,7 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
+                android:fontFamily="@font/jersey_font_family"
                 android:id="@+id/tvInfo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -196,6 +201,7 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
+                android:fontFamily="@font/jersey_font_family"
                 android:id="@+id/tvFeedback"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -227,6 +233,7 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
+                android:fontFamily="@font/jersey_font_family"
                 android:id="@+id/tvRate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -240,6 +247,7 @@
 
         <!-- Version text at the bottom -->
         <TextView
+            android:fontFamily="@font/jersey_font_family"
             android:id="@+id/tvVersion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

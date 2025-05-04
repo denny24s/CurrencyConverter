@@ -10,6 +10,7 @@
     <!-- Navigation Drawer -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mainContent"
+        style="@style/TextAppearance.Jersey"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -27,33 +28,39 @@
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginTop="24dp"
             android:text="@string/currency_converter"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="@id/btnMenu"
-            app:layout_constraintStart_toEndOf="@id/btnMenu"
+
+            android:textAppearance="@style/TextAppearance.Jersey"
+            android:textSize="24sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnUpdate"
+            android:layout_width="80dp"
             style="@style/Widget.MaterialComponents.Button.Icon"
-            android:layout_width="70dp"
+            android:layout_marginTop="100dp"
             android:layout_height="30dp"
             android:layout_marginStart="16dp"
+            android:fontFamily="@font/jersey_font_family"
             android:layout_marginBottom="8dp"
-            android:layout_marginTop="100dp"
-            android:text="dasdiad"
-            android:textSize="8dp"
             android:contentDescription="@string/update"
+            android:gravity="start"
+            android:text="Update"
+            android:textSize="8sp"
             app:icon="@drawable/baseline_arrow_drop_down_24"
-        app:iconGravity="textStart"
-        app:iconPadding="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/scrollContainer"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+            app:iconGravity="textEnd"
+            app:iconPadding="4dp"
+            app:iconSize="13dp"
+            app:layout_constraintBottom_toTopOf="@+id/scrollContainer"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
 
         <TextView
+            android:fontFamily="@font/jersey_font_family"
             android:id="@+id/tvLastUpdate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -69,8 +76,8 @@
             android:id="@+id/scrollContainer"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="172dp"
             android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="172dp"
             app:layout_constraintBottom_toTopOf="@id/btnCalculator"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -81,9 +88,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
-
-
-
 
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -104,20 +108,21 @@
                     android:id="@+id/tvEmptyList"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="64dp"
                     android:gravity="center"
-                    android:text="Press on 'Add' to add currencies"
+                    android:fontFamily="@font/jersey_font_family"
+                    android:text="@string/press_on_add_to_add_currencies"
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:textStyle="italic"
                     android:visibility="gone"
-                    android:layout_marginTop="64dp"
                     app:layout_constraintBottom_toBottomOf="@+id/scrollContent"
                     app:layout_constraintEnd_toEndOf="@+id/scrollContent"
                     app:layout_constraintStart_toStartOf="@+id/scrollContent"
                     app:layout_constraintTop_toTopOf="@+id/scrollContent"
                     tools:visibility="visible" />
 
-            <!-- ② Spinner over the list -->
+                <!-- ② Spinner over the list -->
                 <ImageView
                     android:id="@+id/ivSpinnerOverlay"
                     android:layout_width="28dp"
@@ -131,7 +136,7 @@
                     app:layout_constraintTop_toTopOf="@+id/scrollErrorLayout"
                     tools:visibility="visible" />
 
-            <!-- ③ Inline “no internet” placeholder -->
+                <!-- ③ Inline “no internet” placeholder -->
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/scrollErrorLayout"
                     android:layout_width="0dp"
@@ -162,6 +167,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
+                        android:fontFamily="@font/jersey_font_family"
                         android:text="No Internet connection"
                         android:textSize="18sp"
                         android:textStyle="bold"
@@ -174,7 +180,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Please, check your internet connection"
+                        android:fontFamily="@font/jersey_font_family"
+                        android:text="@string/please_check_your_internet_connection"
                         android:textColor="#888"
                         android:textSize="14sp"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -187,6 +194,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="24dp"
+                        android:fontFamily="@font/jersey_font_family"
                         android:text="Retry"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -196,14 +204,20 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAdd"
-            android:layout_width="70dp"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            android:layout_width="80dp"
             android:layout_height="30dp"
-            android:layout_margin="16dp"
-            android:layout_marginStart="32dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
             android:text="@string/add"
             android:textSize="8sp"
+            android:fontFamily="@font/jersey_font_family"
+            app:icon="@drawable/baseline_arrow_drop_down_24"
+            app:iconGravity="textEnd"
+            app:iconPadding="4dp"
+            app:iconSize="13dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/scrollContainer" />
 
@@ -212,10 +226,13 @@
             android:id="@+id/btnCalculator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
             android:src="@drawable/baseline_calculate_24"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/scrollContainer" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
@@ -230,7 +247,6 @@
             android:id="@+id/navViewContainer"
             layout="@layout/nav_drawer" />
     </FrameLayout>
-
 
 
     <!-- Include the custom drawer layout -->

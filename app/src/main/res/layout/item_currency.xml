@@ -5,7 +5,9 @@
     android:layout_height="wrap_content"
     android:padding="16dp"
     android:orientation="horizontal">
+
     <TextView
+        android:fontFamily="@font/jersey_font_family"
         android:id="@+id/currencyText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -17,6 +17,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:fontFamily="@font/jersey_font_family"
             android:id="@+id/tvCurrency"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -27,6 +28,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
+            android:fontFamily="@font/jersey_font_family"
             android:id="@+id/tvCurrencyName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -47,6 +49,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <EditText
+        android:fontFamily="@font/jersey_font_family"
         android:id="@+id/etValue"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"

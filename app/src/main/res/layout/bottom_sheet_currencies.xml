@@ -22,6 +22,7 @@
 
         <!-- Title -->
         <TextView
+            android:fontFamily="@font/jersey_font_family"
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -33,6 +34,7 @@
 
         <!-- EditText for searching -->
         <EditText
+            android:fontFamily="@font/jersey_font_family"
             android:id="@+id/etSearch"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -56,6 +58,7 @@
 
         <!-- RecyclerView to list currencies -->
         <androidx.recyclerview.widget.RecyclerView
+            android:fontFamily="@font/jersey_font_family"
             android:id="@+id/currenciesRecycler"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -1,0 +1,9 @@
+<resources>
+
+    <style name="TextAppearance.Jersey" parent="TextAppearance.Material3.BodyLarge">
+        <!-- both attrs for full API range -->
+        <item name="android:fontFamily">@font/jersey_font_family</item>
+        <item name="fontFamily">@font/jersey_font_family</item>
+    </style>
+</resources>
+

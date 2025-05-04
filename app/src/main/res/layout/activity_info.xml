@@ -16,6 +16,7 @@
 
     <!-- App name -->
     <TextView
+        android:fontFamily="@font/jersey_font_family"
         android:id="@+id/tvAppName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -28,6 +29,7 @@
 
     <!-- Big info text -->
     <TextView
+        android:fontFamily="@font/jersey_font_family"
         android:id="@+id/tvInfoBody"
         android:layout_width="0dp"
         android:layout_height="0dp"

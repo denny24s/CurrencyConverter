@@ -2,6 +2,7 @@ package com.example.currencyconverter.ui.main
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
@@ -18,6 +19,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -65,6 +68,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
         // 0) restore theme
         val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
         AppCompatDelegate.setDefaultNightMode(
@@ -73,6 +77,8 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setSystemBarIconColors()
+
 
         // 1) Setup nav‐drawer items
         val nav = findViewById<NavigationView>(R.id.navViewContainer)
@@ -157,6 +163,7 @@ class MainActivity : AppCompatActivity() {
         // 6) initial load
         loadData(spinAnim)
     }
+
 
     private fun loadData(spinAnim: Animation) {
         // show spinner
@@ -292,6 +299,16 @@ class MainActivity : AppCompatActivity() {
         } else {
             binding.tvEmptyList.visibility = View.GONE
             binding.currencyRecyclerView.visibility = View.VISIBLE
+        }
+    }
+
+    private fun setSystemBarIconColors() {
+        val darkTheme = (resources.configuration.uiMode
+                and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+
+        WindowInsetsControllerCompat(window, binding.root).apply {
+            isAppearanceLightStatusBars = !darkTheme   // true = dark icons
+            isAppearanceLightNavigationBars = !darkTheme
         }
     }
 

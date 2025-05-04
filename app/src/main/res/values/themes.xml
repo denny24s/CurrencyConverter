@@ -1,10 +1,33 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Theme.CurrencyConverter" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- keep it light -->
-        <item name="android:forceDarkAllowed">false</item>
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorSurface">@color/white</item>
         <!-- … your light palette … -->
+
+        <!-- system bars: TRANSPARENT -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+
+
+        <!-- global font (still useful for plain TextViews) -->
+        <item name="fontFamily">@font/jersey_font_family</item>
+
+        <!-- override every M3 token so all components pick Jersey -->
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.Jersey</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.Jersey</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.Jersey</item>
+
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.Jersey</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.Jersey</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.Jersey</item>
+
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.Jersey</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.Jersey</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.Jersey</item>
+
     </style>
+
+
 </resources>
