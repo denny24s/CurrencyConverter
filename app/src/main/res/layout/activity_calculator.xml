@@ -49,6 +49,7 @@
 
     <!-- Snippet (preview result) -->
     <TextView
+        android:fontFamily="@font/jersey_font_family"
         android:id="@+id/tvSnippet"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

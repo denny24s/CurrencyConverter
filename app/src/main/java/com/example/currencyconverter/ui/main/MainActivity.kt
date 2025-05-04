@@ -6,6 +6,8 @@ import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -51,6 +53,19 @@ class MainActivity : AppCompatActivity() {
     private var fullCurrencyList: List<CurrencyInfo> = emptyList()
     private var selectedBasePosition = 0
 
+
+    // NAV-drawer logo carousel fields
+    private lateinit var ivLogo: ImageView
+    private lateinit var fadeOut: Animation
+    private lateinit var fadeIn: Animation
+
+    private lateinit var logoFrames: IntArray
+    private var logoIndex = 0
+    private val logoHandler = Handler(Looper.getMainLooper())
+
+    // 1) Make this a var and mark it lateinit
+    private lateinit var logoRunnable: Runnable
+
     // Retrofit API
     private val api: CurrencyApi by lazy {
         Retrofit.Builder()
@@ -68,6 +83,57 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // 1) Inflate once
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSystemBarIconColors()
+
+        // 2) decide which icons to use based on night mode
+        val isDark = (resources.configuration.uiMode
+                and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+
+        logoFrames = if (isDark) {
+            intArrayOf(
+                R.drawable.dollar_sign_red,
+                R.drawable.euro_sign_red,
+                R.drawable.yen_sign_red
+            )
+        } else {
+            intArrayOf(
+                R.drawable.dollar_sign_black,
+                R.drawable.euro_sign_black,
+                R.drawable.yen_sign_black
+            )
+        }
+
+        // 2) grab your drawer’s ImageView
+        val navView: NavigationView = findViewById(R.id.navViewContainer)
+        ivLogo = navView.findViewById(R.id.ivLogo)
+
+        // 3) load fade-out/fade-in animations
+        fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
+        fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in)
+
+        // 4) build the swapping Runnable
+        logoRunnable = Runnable {
+            ivLogo.startAnimation(fadeOut.apply {
+                setAnimationListener(object : Animation.AnimationListener {
+                    override fun onAnimationEnd(a: Animation?) {
+                        logoIndex = (logoIndex + 1) % logoFrames.size
+                        ivLogo.setImageResource(logoFrames[logoIndex])
+                        ivLogo.startAnimation(fadeIn)
+                        logoHandler.postDelayed(logoRunnable, 3_000L)
+                    }
+
+                    override fun onAnimationStart(a: Animation?) {}
+                    override fun onAnimationRepeat(a: Animation?) {}
+                })
+            })
+        }
+
+        // 5) kick off the first frame + schedule
+        ivLogo.setImageResource(logoFrames[0])
+        logoHandler.postDelayed(logoRunnable, 3_000L)
 
         // 0) restore theme
         val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
@@ -75,9 +141,7 @@ class MainActivity : AppCompatActivity() {
             prefs.getInt(KEY_THEME, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         )
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        setSystemBarIconColors()
+
 
 
         // 1) Setup nav‐drawer items
@@ -366,5 +430,11 @@ class MainActivity : AppCompatActivity() {
             }
         })
         dlg.show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // always remove callbacks so we don’t leak the Activity
+        logoHandler.removeCallbacks(logoRunnable)
     }
 }
