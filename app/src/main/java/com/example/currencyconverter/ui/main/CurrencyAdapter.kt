@@ -1,12 +1,16 @@
 package com.example.currencyconverter.ui.main
 
 import android.content.Context
+import android.graphics.Color
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.currencyconverter.CurrencyItem
+import com.example.currencyconverter.R
 import com.example.currencyconverter.databinding.ItemCurrencyRowBinding
 
 class CurrencyAdapter(
@@ -115,8 +119,33 @@ class CurrencyAdapter(
         }
 
         fun bind(item: CurrencyItem, position: Int) {
+
             binding.tvCurrency.text = item.currency.uppercase()
             binding.tvCurrencyName.text = item.currencyName
+
+            // at top of bind(...)
+            val accent = binding.vAccent
+            val rowRoot = binding.root
+
+            // make sure we update at bind-time
+            fun updateFocusState(hasFocus: Boolean) {
+                accent.visibility = if (hasFocus) View.VISIBLE else View.GONE
+                rowRoot.setBackgroundColor(
+                    if (hasFocus)
+                        ContextCompat.getColor(context, R.color.purple_500)  // a bit darker
+                    else
+                        Color.TRANSPARENT
+                )
+            }
+
+// 1) initial state when recycled
+            updateFocusState(binding.etValue.hasFocus())
+
+// 2) now listen for focus changes
+            binding.etValue.setOnFocusChangeListener { _, hasFocus ->
+                updateFocusState(hasFocus)
+            }
+
 
             binding.currencyChangeContainer.setOnClickListener {
                 // use the *current* adapter position, not the one passed into bind(...)
@@ -160,7 +189,8 @@ class CurrencyAdapter(
             )
         }
 
+
     }
 
-        }
+}
 

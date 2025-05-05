@@ -181,7 +181,10 @@ class MainActivity : AppCompatActivity() {
             },
             onValueChanged = { basePos ->
                 selectedBasePosition = basePos
-                adapter.recalculateAll(basePos)
+                // defer the notifyItemChanged calls so we aren't in the middle of a layout
+                binding.currencyRecyclerView.post {
+                    adapter.recalculateAll(basePos)
+                }
             }
         )
         binding.currencyRecyclerView.apply {
