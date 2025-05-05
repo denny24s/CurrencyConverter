@@ -338,15 +338,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun changeCurrencyForItem(pos: Int, newCode: String) {
-        val old = adapter.items[pos]
-        val oldEur = old.value / (adapter.exchangeRates[old.currency] ?: 1.0)
-        val newRate = adapter.exchangeRates[newCode] ?: 1.0
-        val name = fullCurrencyList.firstOrNull { it.code == newCode }?.name ?: newCode
+        // 1) guard against an out-of-range click
+        if (pos !in adapter.items.indices) return
 
-        adapter.updateItemCurrency(pos, newCode, name, oldEur * newRate)
+        // 2) update your “current base” to match
+        selectedBasePosition = pos
+
+        // 3) now do the swap
+        val oldItem = adapter.items[pos]
+        val oldRate = adapter.exchangeRates[oldItem.currency] ?: 1.0
+        val oldEur = oldItem.value / oldRate
+
+        val newRate = adapter.exchangeRates[newCode] ?: 1.0
+        val newName = fullCurrencyList.firstOrNull { it.code == newCode }?.name ?: newCode
+
+        adapter.updateItemCurrency(pos, newCode, newName, oldEur * newRate)
         adapter.recalculateAll(pos)
         saveCurrencyList()
     }
+
 
     private fun saveCurrencyList() {
         val csv = adapter.items.joinToString(",") { it.currency }

@@ -5,6 +5,8 @@
     <color name="test">#dfdfdf</color>
     <color name="purple_500">#D9AAF6</color>
     <color name="purple_200">#673AB7</color>
+    <color name="light_gray">#E0E0E0</color>
+
 
     <color name="transparent">@android:color/transparent</color>
 </resources>

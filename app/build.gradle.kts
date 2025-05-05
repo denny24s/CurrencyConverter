@@ -75,6 +75,8 @@ dependencies {
     implementation(libs.retrofit2.converter.gson)
 
     implementation ("androidx.datastore:datastore-preferences:1.1.4")
+
+    implementation("net.objecthunter:exp4j:0.4.8")
 }
 
 kapt {

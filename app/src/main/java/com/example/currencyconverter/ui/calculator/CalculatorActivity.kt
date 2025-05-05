@@ -2,8 +2,11 @@ package com.example.currencyconverter.ui.calculator
 
 import android.content.Context
 import android.os.Bundle
+import android.util.TypedValue
 import androidx.appcompat.app.AppCompatActivity
 import com.example.currencyconverter.databinding.ActivityCalculatorBinding
+import net.objecthunter.exp4j.ExpressionBuilder
+import net.objecthunter.exp4j.operator.Operator
 
 class CalculatorActivity : AppCompatActivity() {
 
@@ -23,7 +26,7 @@ class CalculatorActivity : AppCompatActivity() {
         snippet = prefs.getString("SNIPPET", "") ?: ""
 
         // Update UI
-        binding.tvExpression.text = expression
+        showExpression(expression)
         binding.tvSnippet.text = snippet
 
         // Back to main screen
@@ -94,10 +97,27 @@ class CalculatorActivity : AppCompatActivity() {
 
     private fun evaluateExpression(expr: String): String {
         return try {
-            val safeExpr = expr.replace("×", "*").replace("÷", "/")
-            SimpleCalculator.evaluate(safeExpr).toString()
+            val value = ExpressionBuilder(expr)
+                .build()
+                .evaluate()
+
+            if (value % 1.0 == 0.0) value.toLong().toString()
+            else value.toString()
         } catch (e: Exception) {
             ""
+        }
+    }
+
+    private fun showExpression(expr: String) {
+        // 1) reset to the “natural” max size
+        binding.tvExpression.setTextSize(TypedValue.COMPLEX_UNIT_SP, 56f)
+
+        // 2) assign the text
+        binding.tvExpression.text = expr
+
+        // 3) request a layout pass so auto-size has a chance to run again
+        binding.tvExpression.post {
+            binding.tvExpression.requestLayout()
         }
     }
 }

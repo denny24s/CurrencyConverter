@@ -119,7 +119,10 @@ class CurrencyAdapter(
             binding.tvCurrencyName.text = item.currencyName
 
             binding.currencyChangeContainer.setOnClickListener {
-                onCurrencyChangeRequested(position)
+                // use the *current* adapter position, not the one passed into bind(...)
+                val pos = adapterPosition
+                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+                onCurrencyChangeRequested(pos)
             }
 
             // ---- restore these five lines ----

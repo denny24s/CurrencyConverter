@@ -21,31 +21,37 @@
 
     <!-- Expression text -->
     <TextView
-        android:fontFamily="@font/jersey_font_family"
         android:id="@+id/tvExpression"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="28sp"
-        android:textColor="@android:color/black"
-        android:text="0"
-        android:maxLines="1"
-        android:ellipsize="end"
-        app:layout_constraintStart_toEndOf="@+id/btnBack"
-        app:layout_constraintEnd_toStartOf="@+id/btnDelete"
-        app:layout_constraintTop_toTopOf="parent"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="36dp" />
+        android:layout_marginTop="64dp"
+
+        android:fontFamily="@font/jersey_font_family"
+        android:maxLines="1"
+        android:text="0"
+        android:textColor="@android:color/black"
+
+        android:textSize="48sp"
+        app:autoSizeMaxTextSize="48sp"
+        app:autoSizeMinTextSize="26sp"
+        app:autoSizeStepGranularity="2sp"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintEnd_toStartOf="@+id/btnDelete"
+        app:layout_constraintStart_toEndOf="@+id/btnBack"
+        app:layout_constraintTop_toBottomOf="@+id/btnBack" />
 
     <!-- Delete button -->
     <ImageView
         android:id="@+id/btnDelete"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_marginTop="36dp"
         android:src="@drawable/baseline_backspace_24"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintBottom_toTopOf="@+id/divider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Snippet (preview result) -->
     <TextView
@@ -53,7 +59,7 @@
         android:id="@+id/tvSnippet"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
+        android:textSize="24sp"
         android:textColor="@android:color/darker_gray"
         android:text=""
         android:maxLines="1"
@@ -67,174 +73,111 @@
         android:id="@+id/divider"
         android:layout_width="0dp"
         android:layout_height="1dp"
+        android:layout_marginBottom="24dp"
         android:background="?android:attr/listDivider"
-        app:layout_constraintTop_toBottomOf="@+id/tvSnippet"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/keypad"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <!-- First row: 7, 8, 9, + -->
-    <Button
-        android:id="@+id/btn7"
+    <!-- below your divider… -->
+    <GridLayout
+        android:id="@+id/keypad"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/jersey_font_family"
-        android:text="7"
-        app:layout_constraintTop_toBottomOf="@+id/divider"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btn8" />
+        android:alignmentMode="alignBounds"
+        android:columnCount="4"
+        android:rowCount="4"
+        android:useDefaultMargins="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-    <Button
-        android:id="@+id/btn8"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/jersey_font_family"
-        android:text="8"
-        app:layout_constraintTop_toBottomOf="@+id/divider"
-        app:layout_constraintStart_toEndOf="@+id/btn7"
-        app:layout_constraintEnd_toStartOf="@+id/btn9" />
+        <!-- Row 1 -->
+        <Button
+            android:id="@+id/btn7"
+            style="@style/CalculatorKey"
+            android:text="7" />
 
-    <Button
-        android:fontFamily="@font/jersey_font_family"
-        android:id="@+id/btn9"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="9"
-        app:layout_constraintTop_toBottomOf="@+id/divider"
-        app:layout_constraintStart_toEndOf="@+id/btn8"
-        app:layout_constraintEnd_toStartOf="@+id/btnPlus" />
+        <Button
+            android:id="@+id/btn8"
+            style="@style/CalculatorKey"
+            android:text="8" />
 
-    <Button
-        android:fontFamily="@font/jersey_font_family"
-        android:id="@+id/btnPlus"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="+"
-        app:layout_constraintTop_toBottomOf="@+id/divider"
-        app:layout_constraintStart_toEndOf="@+id/btn9"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <Button
+            android:id="@+id/btn9"
+            style="@style/CalculatorKey"
+            android:text="9" />
 
-    <!-- Second row: 4, 5, 6, × -->
-    <Button
-        android:fontFamily="@font/jersey_font_family"
-        android:id="@+id/btn4"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="4"
-        app:layout_constraintTop_toBottomOf="@+id/btn7"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btn5" />
+        <Button
+            android:id="@+id/btnPlus"
+            style="@style/CalculatorKey"
+            android:text="+" />
 
-    <Button
-        android:fontFamily="@font/jersey_font_family"
-        android:id="@+id/btn5"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="5"
-        app:layout_constraintTop_toBottomOf="@+id/btn8"
-        app:layout_constraintStart_toEndOf="@+id/btn4"
-        app:layout_constraintEnd_toStartOf="@+id/btn6" />
+        <!-- Row 2 -->
+        <Button
+            android:id="@+id/btn4"
+            style="@style/CalculatorKey"
+            android:text="4" />
 
-    <Button
-        android:fontFamily="@font/jersey_font_family"
-        android:id="@+id/btn6"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="6"
-        app:layout_constraintTop_toBottomOf="@+id/btn9"
-        app:layout_constraintStart_toEndOf="@+id/btn5"
-        app:layout_constraintEnd_toStartOf="@+id/btnMultiply" />
+        <Button
+            android:id="@+id/btn5"
+            style="@style/CalculatorKey"
+            android:text="5" />
 
-    <Button
-        android:fontFamily="@font/jersey_font_family"
-        android:id="@+id/btnMultiply"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="×"
-        app:layout_constraintTop_toBottomOf="@+id/btnPlus"
-        app:layout_constraintStart_toEndOf="@+id/btn6"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <Button
+            android:id="@+id/btn6"
+            style="@style/CalculatorKey"
+            android:text="6" />
 
-    <!-- Third row: 1, 2, 3, - -->
-    <Button
-        android:fontFamily="@font/jersey_font_family"
-        android:id="@+id/btn1"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="1"
-        app:layout_constraintTop_toBottomOf="@+id/btn4"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btn2" />
+        <Button
+            android:id="@+id/btnMultiply"
+            style="@style/CalculatorKey"
+            android:text="×" />
 
-    <Button
-        android:fontFamily="@font/jersey_font_family"
-        android:id="@+id/btn2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="2"
-        app:layout_constraintTop_toBottomOf="@+id/btn5"
-        app:layout_constraintStart_toEndOf="@+id/btn1"
-        app:layout_constraintEnd_toStartOf="@+id/btn3" />
+        <!-- Row 3 -->
+        <Button
+            android:id="@+id/btn1"
+            style="@style/CalculatorKey"
+            android:text="1" />
 
-    <Button
-        android:fontFamily="@font/jersey_font_family"
-        android:id="@+id/btn3"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="3"
-        app:layout_constraintTop_toBottomOf="@+id/btn6"
-        app:layout_constraintStart_toEndOf="@+id/btn2"
-        app:layout_constraintEnd_toStartOf="@+id/btnMinus" />
+        <Button
+            android:id="@+id/btn2"
+            style="@style/CalculatorKey"
+            android:text="2" />
 
-    <Button
-        android:fontFamily="@font/jersey_font_family"
-        android:id="@+id/btnMinus"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="-"
-        app:layout_constraintTop_toBottomOf="@+id/btnMultiply"
-        app:layout_constraintStart_toEndOf="@+id/btn3"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <Button
+            android:id="@+id/btn3"
+            style="@style/CalculatorKey"
+            android:text="3" />
 
-    <!-- Fourth row: 0, ., =, ÷ -->
-    <Button
-        android:fontFamily="@font/jersey_font_family"
-        android:id="@+id/btn0"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="0"
-        app:layout_constraintTop_toBottomOf="@+id/btn1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btnDot" />
+        <Button
+            android:id="@+id/btnMinus"
+            style="@style/CalculatorKey"
+            android:text="-" />
 
-    <Button
-        android:fontFamily="@font/jersey_font_family"
-        android:id="@+id/btnDot"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="."
-        app:layout_constraintTop_toBottomOf="@+id/btn2"
-        app:layout_constraintStart_toEndOf="@+id/btn0"
-        app:layout_constraintEnd_toStartOf="@+id/btnEqual" />
+        <!-- Row 4 -->
+        <Button
+            android:id="@+id/btn0"
+            style="@style/CalculatorKey"
+            android:text="0" />
 
-    <Button
-        android:fontFamily="@font/jersey_font_family"
-        android:id="@+id/btnEqual"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="="
-        app:layout_constraintTop_toBottomOf="@+id/btn3"
-        app:layout_constraintStart_toEndOf="@+id/btnDot"
-        app:layout_constraintEnd_toStartOf="@+id/btnDivide" />
+        <Button
+            android:id="@+id/btnDot"
+            style="@style/CalculatorKey"
+            android:text="." />
 
-    <Button
-        android:fontFamily="@font/jersey_font_family"
-        android:id="@+id/btnDivide"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="÷"
-        app:layout_constraintTop_toBottomOf="@+id/btnMinus"
-        app:layout_constraintStart_toEndOf="@+id/btnEqual"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <Button
+            android:id="@+id/btnEqual"
+            style="@style/CalculatorKey"
+            android:text="=" />
+
+        <Button
+            android:id="@+id/btnDivide"
+            style="@style/CalculatorKey"
+            android:text="÷" />
+
+    </GridLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
