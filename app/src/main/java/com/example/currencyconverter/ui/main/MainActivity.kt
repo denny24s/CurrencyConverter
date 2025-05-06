@@ -56,7 +56,6 @@ class MainActivity : AppCompatActivity() {
     private var selectedBasePosition = 0
 
 
-    // NAV-drawer logo carousel fields
     private lateinit var ivLogo: ImageView
     private lateinit var fadeOut: Animation
     private lateinit var fadeIn: Animation
@@ -65,66 +64,51 @@ class MainActivity : AppCompatActivity() {
     private var logoIndex = 0
     private val logoHandler = Handler(Looper.getMainLooper())
 
-    // 1) Make this a var and mark it lateinit
     private lateinit var logoRunnable: Runnable
 
-    // Retrofit API
     private val api: CurrencyApi by lazy {
-        Retrofit.Builder()
-            .baseUrl("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+        Retrofit.Builder().baseUrl("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/")
+            .addConverterFactory(GsonConverterFactory.create()).build()
             .create(CurrencyApi::class.java)
     }
 
-    // prefs key for saved currency codes + theme
-    private val PREFS = "settings"
-    private val KEY_CURRENCY_LIST = "currency_list"
-    private val KEY_THEME = "theme_mode"
+    private val prefs = "settings"
+    private val keyCurrencyList = "currency_list"
+    private val keyTheme = "theme_mode"
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        // 0) restore theme
-        val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
+        val prefs = getSharedPreferences(prefs, MODE_PRIVATE)
         AppCompatDelegate.setDefaultNightMode(
-            prefs.getInt(KEY_THEME, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            prefs.getInt(keyTheme, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         )
 
         super.onCreate(savedInstanceState)
 
 
-        // 1) Inflate once
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSystemBarIconColors()
 
-        // 2) decide which icons to use based on night mode
-        val isDark = (resources.configuration.uiMode
-                and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        val isDark =
+            (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 
         logoFrames = if (isDark) {
             intArrayOf(
-                R.drawable.dollar_sign_red,
-                R.drawable.euro_sign_red,
-                R.drawable.yen_sign_red
+                R.drawable.dollar_sign_red, R.drawable.euro_sign_red, R.drawable.yen_sign_red
             )
         } else {
             intArrayOf(
-                R.drawable.dollar_sign_black,
-                R.drawable.euro_sign_black,
-                R.drawable.yen_sign_black
+                R.drawable.dollar_sign_black, R.drawable.euro_sign_black, R.drawable.yen_sign_black
             )
         }
 
-        // 2) grab your drawer’s ImageView
         val navView: NavigationView = findViewById(R.id.navViewContainer)
         ivLogo = navView.findViewById(R.id.ivLogo)
 
-        // 3) load fade-out/fade-in animations
         fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
         fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in)
 
-        // 4) build the swapping Runnable
         logoRunnable = Runnable {
             ivLogo.startAnimation(fadeOut.apply {
                 setAnimationListener(object : Animation.AnimationListener {
@@ -141,7 +125,6 @@ class MainActivity : AppCompatActivity() {
             })
         }
 
-        // 5) kick off the first frame + schedule
         ivLogo.setImageResource(logoFrames[0])
         logoHandler.postDelayed(logoRunnable, 3_000L)
 
@@ -149,14 +132,11 @@ class MainActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, true)
         window.statusBarColor = Color.WHITE
         window.navigationBarColor = Color.TRANSPARENT
-// on Android 12+ to allow transparent nav bar:
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.isNavigationBarContrastEnforced = false
         }
 
 
-
-        // 1) Setup nav‐drawer items
         val nav = findViewById<NavigationView>(R.id.navViewContainer)
         nav.findViewById<SwitchMaterial>(R.id.switchDarkMode).apply {
             isChecked = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
@@ -164,7 +144,7 @@ class MainActivity : AppCompatActivity() {
                 val mode =
                     if (checked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
                 AppCompatDelegate.setDefaultNightMode(mode)
-                prefs.edit().putInt(KEY_THEME, mode).apply()
+                prefs.edit().putInt(keyTheme, mode).apply()
 
                 recreate()
             }
@@ -184,9 +164,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 2) Recycler + Adapter
-        adapter = CurrencyAdapter(
-            context = this,
+        adapter = CurrencyAdapter(context = this,
             items = mutableListOf(),
             exchangeRates = emptyMap(),
             onCurrencyChangeRequested = { pos ->
@@ -195,26 +173,20 @@ class MainActivity : AppCompatActivity() {
             },
             onValueChanged = { basePos ->
                 selectedBasePosition = basePos
-                // defer the notifyItemChanged calls so we aren't in the middle of a layout
                 binding.currencyRecyclerView.post {
                     adapter.recalculateAll(basePos)
                 }
-            }
-        )
+            })
         binding.currencyRecyclerView.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = this@MainActivity.adapter
         }
 
-        // 3) Drag & swipe
         ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-            ItemTouchHelper.LEFT
+            ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT
         ) {
             override fun onMove(
-                rv: RecyclerView,
-                vh: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
+                rv: RecyclerView, vh: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder
             ) = adapter.moveItem(vh.adapterPosition, target.adapterPosition).let {
                 saveCurrencyList()
                 true
@@ -227,7 +199,7 @@ class MainActivity : AppCompatActivity() {
             }
         }).attachToRecyclerView(binding.currencyRecyclerView)
 
-        // 4) Buttons
+
         binding.btnMenu.setOnClickListener {
             binding.drawerLayout.openDrawer(GravityCompat.START)
         }
@@ -236,18 +208,15 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, CalculatorActivity::class.java))
         }
 
-        // 5) Update + Retry
         val spinAnim = AnimationUtils.loadAnimation(this, R.anim.spin)
         binding.btnUpdate.setOnClickListener { loadData(spinAnim) }
         binding.btnScrollRetry.setOnClickListener { loadData(spinAnim) }
 
-        // 6) initial load
         loadData(spinAnim)
     }
 
 
     private fun loadData(spinAnim: Animation) {
-        // show spinner
         binding.ivSpinnerOverlay.apply {
             visibility = View.VISIBLE
             startAnimation(spinAnim)
@@ -273,8 +242,8 @@ class MainActivity : AppCompatActivity() {
                     adapter.exchangeRates = eurRates
 
                     // restore or default
-                    val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
-                    val saved = prefs.getString(KEY_CURRENCY_LIST, null)
+                    val prefs = getSharedPreferences(prefs, MODE_PRIVATE)
+                    val saved = prefs.getString(keyCurrencyList, null)
                     val newList = mutableListOf<CurrencyItem>()
                     when {
                         saved == null -> { // first run
@@ -285,9 +254,7 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
 
-                        saved.isEmpty() -> {
-                            // user cleared → leave empty
-                        }
+                        saved.isEmpty() -> {}
 
                         else -> {
                             saved.split(",").forEach { code ->
@@ -298,7 +265,6 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
 
-                    // swap in one go
                     adapter.items.apply {
                         clear()
                         addAll(newList)
@@ -308,12 +274,11 @@ class MainActivity : AppCompatActivity() {
                     // toggle empty message
                     updateEmptyState()
 
-                    // recalc if any
                     if (adapter.items.isNotEmpty()) adapter.recalculateAll(0)
 
                     // timestamp
-                    val now = SimpleDateFormat("HH:mm dd.MM.yyyy", Locale.getDefault())
-                        .format(Date())
+                    val now =
+                        SimpleDateFormat("HH:mm dd.MM.yyyy", Locale.getDefault()).format(Date())
                     binding.tvLastUpdate.text = "Updated $now"
 
                     binding.ivSpinnerOverlay.clearAnimation()
@@ -331,7 +296,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addNewCurrencyRow(code: String) {
-        // If list was empty, clear placeholder
         if (adapter.items.isEmpty()) {
             fullCurrencyList.firstOrNull { it.code == code }?.let {
                 val rate = adapter.exchangeRates[code] ?: 1.0
@@ -355,13 +319,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun changeCurrencyForItem(pos: Int, newCode: String) {
-        // 1) guard against an out-of-range click
         if (pos !in adapter.items.indices) return
 
-        // 2) update your “current base” to match
         selectedBasePosition = pos
 
-        // 3) now do the swap
         val oldItem = adapter.items[pos]
         val oldRate = adapter.exchangeRates[oldItem.currency] ?: 1.0
         val oldEur = oldItem.value / oldRate
@@ -377,10 +338,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun saveCurrencyList() {
         val csv = adapter.items.joinToString(",") { it.currency }
-        getSharedPreferences(PREFS, MODE_PRIVATE)
-            .edit()
-            .putString(KEY_CURRENCY_LIST, csv)
-            .apply()
+        getSharedPreferences(prefs, MODE_PRIVATE).edit().putString(keyCurrencyList, csv).apply()
     }
 
     private fun updateEmptyState() {
@@ -394,11 +352,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setSystemBarIconColors() {
-        val darkTheme = (resources.configuration.uiMode
-                and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        val darkTheme =
+            (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 
         WindowInsetsControllerCompat(window, binding.root).apply {
-            isAppearanceLightStatusBars = !darkTheme   // true = dark icons
+            isAppearanceLightStatusBars = !darkTheme
             isAppearanceLightNavigationBars = !darkTheme
         }
     }
@@ -448,12 +406,9 @@ class MainActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, st: Int, bf: Int, ac: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 val q = s.toString().lowercase()
-                sheetAdapter.updateData(
-                    fullCurrencyList.filter {
-                        it.code.lowercase().contains(q) ||
-                                it.name.lowercase().contains(q)
-                    }
-                )
+                sheetAdapter.updateData(fullCurrencyList.filter {
+                    it.code.lowercase().contains(q) || it.name.lowercase().contains(q)
+                })
             }
         })
         dlg.show()
@@ -461,7 +416,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // always remove callbacks so we don’t leak the Activity
         logoHandler.removeCallbacks(logoRunnable)
     }
 }

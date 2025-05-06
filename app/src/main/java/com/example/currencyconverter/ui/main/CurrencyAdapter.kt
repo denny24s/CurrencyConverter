@@ -30,20 +30,17 @@ class CurrencyAdapter(
         return CurrencyViewHolder(binding)
     }
 
-
-    // 1) normal one (mandatory)
     override fun onBindViewHolder(holder: CurrencyViewHolder, position: Int) {
         holder.bind(items[position], position)
     }
 
-    // 2) the “payload” one – optional but must sit *beside* the first one
     override fun onBindViewHolder(
         holder: CurrencyViewHolder,
         position: Int,
         payloads: MutableList<Any>
     ) {
         if (payloads.contains(PAYLOAD_VALUE_ONLY)) {
-            holder.updateValueOnly(items[position].value)   // partial update
+            holder.updateValueOnly(items[position].value)
         } else {
             super.onBindViewHolder(holder, position, payloads)
         }
@@ -51,7 +48,6 @@ class CurrencyAdapter(
 
     override fun getItemCount(): Int = items.size
 
-    // changed this to accept a "rate" param as the initial value
     fun addNewCurrency(code: String, name: String, rate: Double) {
         items.add(CurrencyItem(currency = code, currencyName = name, value = rate))
         notifyItemInserted(items.size - 1)
@@ -90,12 +86,11 @@ class CurrencyAdapter(
         val baseRate = exchangeRates[baseItem.currency] ?: 1.0
         val baseValueInEur = baseItem.value / baseRate
 
-        // update list values
         for (i in items.indices) {
-            if (i == basePosition) continue            // <-  keep the row you're typing in
+            if (i == basePosition) continue
             val rate = exchangeRates[items[i].currency] ?: 1.0
             items[i].value = baseValueInEur * rate
-            notifyItemChanged(i, PAYLOAD_VALUE_ONLY)   // <-  partial update, no setText() on base row
+            notifyItemChanged(i, PAYLOAD_VALUE_ONLY)
         }
     }
 
@@ -109,11 +104,9 @@ class CurrencyAdapter(
         private var currentTextWatcher: TextWatcher? = null
 
         fun updateValueOnly(newVal: Double) {
-            // skip watcher juggling, keep cursor position
             val et = binding.etValue
             val sel = et.selectionStart
             et.setText(String.format("%.2f", newVal))
-            // put caret back if possible
             val newPos = sel.coerceAtMost(et.text.length)
             et.setSelection(newPos)
         }
@@ -123,50 +116,54 @@ class CurrencyAdapter(
             binding.tvCurrency.text = item.currency.uppercase()
             binding.tvCurrencyName.text = item.currencyName
 
-            // at top of bind(...)
             val accent = binding.vAccent
             val rowRoot = binding.root
 
-            // make sure we update at bind-time
             fun updateFocusState(hasFocus: Boolean) {
                 accent.visibility = if (hasFocus) View.VISIBLE else View.GONE
                 rowRoot.setBackgroundColor(
                     if (hasFocus)
-                        ContextCompat.getColor(context, R.color.row_gray)  // a bit darker
+                        ContextCompat.getColor(context, R.color.row_gray)
                     else
                         Color.TRANSPARENT
                 )
             }
 
-// 1) initial state when recycled
             updateFocusState(binding.etValue.hasFocus())
 
-// 2) now listen for focus changes
             binding.etValue.setOnFocusChangeListener { _, hasFocus ->
                 updateFocusState(hasFocus)
             }
 
 
             binding.currencyChangeContainer.setOnClickListener {
-                // use the *current* adapter position, not the one passed into bind(...)
                 val pos = adapterPosition
                 if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
                 onCurrencyChangeRequested(pos)
             }
 
-            // ---- restore these five lines ----
             currentTextWatcher?.let { binding.etValue.removeTextChangedListener(it) }
 
             binding.etValue.setText(formatValue(item.value))
-            // keep caret at the end so user can keep typing
             binding.etValue.setSelection(binding.etValue.text.length)
 
-            binding.etValue.addTextChangedListener( // attach AFTER setText
-                // -----------------------------------
-
+            binding.etValue.addTextChangedListener(
                 object : TextWatcher {
-                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                    override fun beforeTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        count: Int,
+                        after: Int
+                    ) {
+                    }
+
+                    override fun onTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        before: Int,
+                        count: Int
+                    ) {
+                    }
 
                     override fun afterTextChanged(s: Editable?) {
                         if (!binding.etValue.hasFocus()) return
@@ -185,12 +182,9 @@ class CurrencyAdapter(
                         item.value = text.toDoubleOrNull() ?: 0.0
                         onValueChanged(position)
                     }
-                }.also { currentTextWatcher = it }   // remember reference
+                }.also { currentTextWatcher = it }
             )
         }
-
-
     }
-
 }
 

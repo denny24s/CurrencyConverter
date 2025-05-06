@@ -10,9 +10,9 @@
     <!-- Navigation Drawer -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mainContent"
-        android:background="@color/white"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/white">
 
         <!-- Top bar: menu, title, update, last update -->
         <ImageView
@@ -39,14 +39,14 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnUpdate"
-            android:layout_width="80dp"
             style="@style/Widget.CurrencyConverter.Button.Icon"
-            android:layout_marginTop="100dp"
+            android:layout_width="80dp"
             android:layout_height="30dp"
             android:layout_marginStart="16dp"
-            android:fontFamily="@font/jersey_font_family"
+            android:layout_marginTop="100dp"
             android:layout_marginBottom="8dp"
             android:contentDescription="@string/update"
+            android:fontFamily="@font/jersey_font_family"
             android:gravity="start"
             android:text="Update"
             android:textSize="8sp"
@@ -60,11 +60,11 @@
 
 
         <TextView
-            android:fontFamily="@font/jersey_font_family"
             android:id="@+id/tvLastUpdate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
+            android:fontFamily="@font/jersey_font_family"
             android:text="@string/updated_time"
             app:layout_constraintBottom_toBottomOf="@+id/btnUpdate"
             app:layout_constraintEnd_toEndOf="parent"
@@ -88,8 +88,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/container_bg"
-                android:paddingVertical="8dp"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:paddingVertical="8dp">
 
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -109,8 +109,8 @@
                     android:id="@+id/tvEmptyList"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
                     android:fontFamily="@font/jersey_font_family"
+                    android:gravity="center"
                     android:text="@string/press_on_add_to_add_currencies"
                     android:textColor="@color/black"
                     android:textSize="20sp"
@@ -190,8 +190,8 @@
 
 
                     <Button
-                        style="@style/Widget.CurrencyConverter.Button.Icon"
                         android:id="@+id/btnScrollRetry"
+                        style="@style/Widget.CurrencyConverter.Button.Icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="24dp"
@@ -212,9 +212,9 @@
             android:layout_height="30dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
+            android:fontFamily="@font/jersey_font_family"
             android:text="@string/add"
             android:textSize="8sp"
-            android:fontFamily="@font/jersey_font_family"
             app:icon="@drawable/add_24dp"
             app:iconGravity="textEnd"
             app:iconPadding="4dp"
@@ -224,18 +224,18 @@
 
         <!-- Floating Calculator Button -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            style="@style/Widget.CurrencyConverter.FAB.Icon"
             android:id="@+id/btnCalculator"
+            style="@style/Widget.CurrencyConverter.FAB.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.CurrencyConverter.FAB"
             android:src="@drawable/baseline_calculate_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/scrollContainer" />
+            app:layout_constraintTop_toBottomOf="@+id/scrollContainer"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.CurrencyConverter.FAB" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

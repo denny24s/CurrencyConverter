@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/calculatorRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".ui.calculator.CalculatorActivity"
-    android:padding="16dp">
+    android:padding="16dp"
+    tools:context=".ui.calculator.CalculatorActivity">
 
     <!-- Back button -->
     <ImageView
         android:id="@+id/btnBack"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:src="@drawable/baseline_arrow_back_ios_new_24"
         android:layout_marginTop="36dp"
+        android:src="@drawable/baseline_arrow_back_ios_new_24"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -26,8 +25,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
         android:layout_marginTop="64dp"
+        android:layout_marginEnd="16dp"
 
         android:fontFamily="@font/jersey_font_family"
         android:maxLines="1"
@@ -56,18 +55,18 @@
 
     <!-- Snippet (preview result) -->
     <TextView
-        android:fontFamily="@font/jersey_font_family"
         android:id="@+id/tvSnippet"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="24sp"
-        android:textColor="@android:color/darker_gray"
-        android:text=""
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/jersey_font_family"
         android:maxLines="1"
-        app:layout_constraintStart_toStartOf="@+id/tvExpression"
+        android:text=""
+        android:textColor="@android:color/darker_gray"
+        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="@+id/tvExpression"
-        app:layout_constraintTop_toBottomOf="@+id/tvExpression"
-        android:layout_marginTop="8dp" />
+        app:layout_constraintStart_toStartOf="@+id/tvExpression"
+        app:layout_constraintTop_toBottomOf="@+id/tvExpression" />
 
     <!-- Divider line -->
     <View

@@ -3,9 +3,8 @@
     android:innerRadiusRatio="3.0"
     android:shape="ring"
     android:thickness="4dp"
-    android:useLevel="false">        <!-- The thickness of the ring -->
+    android:useLevel="false">
 
-    <!-- The ring’s color gradient. We use ‘sweep’ so it’s radial around center. -->
     <gradient
         android:angle="0"
         android:centerColor="@android:color/transparent"
