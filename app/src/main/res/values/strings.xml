@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CurrencyConverter</string>
+    <string name="app_name">cConverter</string>
     <string name="currency_converter">Currency Converter</string>
     <string name="update">Update</string>
     <string name="updated_time">Updated time</string>
@@ -10,10 +10,18 @@
     <string name="info">Info</string>
     <string name="feedback">Feedback</string>
     <string name="rate">Rate</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
-    <string name="app_info_long">This is your long description…</string>
+    <string name="app_info_long"><![CDATA[
+        <h2>About cConverter</h2>
+        Convert between over <b>150</b> world currencies instantly,<br/>
+        with up‑to‑date exchange rates fetched in real time.<br/><br/>
+
+        &#8226; <b>Easy to Use</b> – Tap any currency to set it as your base, enter an amount, and see all other values recalculate instantly.<br/>
+        &#8226; <b>Customizable List</b> – Add, reorder or remove currencies so you always have your favorites at your fingertips.<br/>
+        &#8226; <b>Light &amp; Dark Themes</b> – Switch between day and night modes from the side menu.<br/>
+        &#8226; <b>Built‑in Calculator</b> – Quick access to a simple calculator for multi‑step calculations without leaving the app.<br/>
+        &#8226; <b>Offline Handling</b> – If you lose connectivity you’ll see an error placeholder and can retry once you’re back online.
+    ]]></string>
     <string name="please_check_your_internet_connection">Please, check your internet connection</string>
     <string name="press_on_add_to_add_currencies">Press on \'Add\' to add currencies</string>
 

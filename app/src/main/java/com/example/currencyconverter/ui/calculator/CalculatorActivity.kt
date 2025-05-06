@@ -9,14 +9,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import com.example.currencyconverter.databinding.ActivityCalculatorBinding
 import net.objecthunter.exp4j.ExpressionBuilder
-import net.objecthunter.exp4j.operator.Operator
 
 class CalculatorActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCalculatorBinding
 
     private var expression = "" // The text user is building
-    private var snippet = ""    // Preview result
+    private var snippet = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +25,7 @@ class CalculatorActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, true)
         window.statusBarColor = Color.WHITE
         window.navigationBarColor = Color.TRANSPARENT
-// on Android 12+ to allow transparent nav bar:
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             window.isNavigationBarContrastEnforced = false
         }
@@ -40,7 +39,6 @@ class CalculatorActivity : AppCompatActivity() {
         showExpression(expression)
         binding.tvSnippet.text = snippet
 
-        // Back to main screen
         binding.btnBack.setOnClickListener {
             finish()
         }
@@ -120,17 +118,10 @@ class CalculatorActivity : AppCompatActivity() {
     }
 
     private fun showExpression(expr: String) {
-        // 1) reset to the “natural” max size
         binding.tvExpression.setTextSize(TypedValue.COMPLEX_UNIT_SP, 56f)
-
-        // 2) assign the text
         binding.tvExpression.text = expr
-
-        // 3) request a layout pass so auto-size has a chance to run again
         binding.tvExpression.post {
             binding.tvExpression.requestLayout()
         }
-
     }
-
 }
