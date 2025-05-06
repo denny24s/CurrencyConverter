@@ -3,8 +3,10 @@ package com.example.currencyconverter.ui.main
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Color
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -81,7 +83,15 @@ class MainActivity : AppCompatActivity() {
     private val KEY_THEME = "theme_mode"
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        // 0) restore theme
+        val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
+        AppCompatDelegate.setDefaultNightMode(
+            prefs.getInt(KEY_THEME, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        )
+
         super.onCreate(savedInstanceState)
+
 
         // 1) Inflate once
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -135,12 +145,14 @@ class MainActivity : AppCompatActivity() {
         ivLogo.setImageResource(logoFrames[0])
         logoHandler.postDelayed(logoRunnable, 3_000L)
 
-        // 0) restore theme
-        val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
-        AppCompatDelegate.setDefaultNightMode(
-            prefs.getInt(KEY_THEME, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-        )
 
+        WindowCompat.setDecorFitsSystemWindows(window, true)
+        window.statusBarColor = Color.WHITE
+        window.navigationBarColor = Color.TRANSPARENT
+// on Android 12+ to allow transparent nav bar:
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.isNavigationBarContrastEnforced = false
+        }
 
 
 
@@ -153,6 +165,8 @@ class MainActivity : AppCompatActivity() {
                     if (checked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
                 AppCompatDelegate.setDefaultNightMode(mode)
                 prefs.edit().putInt(KEY_THEME, mode).apply()
+
+                recreate()
             }
         }
         nav.findViewById<View>(R.id.infoRow).setOnClickListener {

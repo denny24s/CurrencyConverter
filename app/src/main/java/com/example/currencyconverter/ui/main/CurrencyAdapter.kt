@@ -132,7 +132,7 @@ class CurrencyAdapter(
                 accent.visibility = if (hasFocus) View.VISIBLE else View.GONE
                 rowRoot.setBackgroundColor(
                     if (hasFocus)
-                        ContextCompat.getColor(context, R.color.purple_500)  // a bit darker
+                        ContextCompat.getColor(context, R.color.row_gray)  // a bit darker
                     else
                         Color.TRANSPARENT
                 )

@@ -1,13 +1,31 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.CurrencyConverter" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- keep it light -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <item name="colorSurface">@color/white</item>
-        <!-- … your light palette … -->
+
+    <style name="Theme.CurrencyConverter" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+
+        <!-- core “light” palette -->
+        <item name="colorPrimary">@color/light_gray</item>
+        <item name="colorOnPrimary">@color/black</item>
+
+        <item name="colorSecondary">@color/light_gray</item>
+        <item name="colorOnSecondary">@color/black</item>
+
+        <!-- legacy “accent” fallbacks for any M2 components -->
+        <item name="colorAccent">@color/light_gray</item>
+        <item name="colorControlActivated">@color/light_gray</item>
+
+        <!-- window backdrop -->
+        <item name="android:windowBackground">@color/white</item>
+
+        <item name="materialButtonStyle">
+            @style/Widget.CurrencyConverter.Button.Icon
+        </item>
+
+        <item name="floatingActionButtonStyle">
+            @style/Widget.CurrencyConverter.FAB.Icon
+        </item>
 
         <!-- system bars: TRANSPARENT -->
-        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/white</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
 
 
@@ -26,24 +44,62 @@
         <item name="textAppearanceHeadlineLarge">@style/TextAppearance.Jersey</item>
         <item name="textAppearanceHeadlineMedium">@style/TextAppearance.Jersey</item>
         <item name="textAppearanceHeadlineSmall">@style/TextAppearance.Jersey</item>
-
     </style>
 
-    <style name="CalculatorKey" parent="Widget.AppCompat.Button">
-        <!-- fixed size -->
+
+    <style name="Widget.CurrencyConverter.Button.Icon" parent="Widget.MaterialComponents.Button.Icon">
+        <!-- ① disable the purple overlay completely -->
+        <item name="materialThemeOverlay">@color/dark_gray</item>
+        <!-- ② now add the colours you want -->
+        <item name="backgroundTint">@color/dark_gray</item>
+        <item name="rippleColor">@color/black</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="Widget.CurrencyConverter.FAB.Icon" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="materialThemeOverlay">@null</item>
+
+        <item name="backgroundTint">@color/calculator_gray</item>
+        <item name="rippleColor">@color/black</item>
+        <item name="android:tint">@color/black</item>
+    </style>
+
+    <!-- make the FAB corners only gently rounded -->
+    <style name="ShapeAppearance.CurrencyConverter.FAB" parent="">
+        <!-- use “rounded” corner family -->
+        <item name="cornerFamily">rounded</item>
+        <!-- small corner radius to make it nearly square -->
+        <item name="cornerSize">16dp</item>
+    </style>
+
+
+    <style name="ShapeAppearance.CalcKey" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerSize">64dp</item>
+    </style>
+
+    <style name="CalculatorKey" parent="Widget.Material3.Button">
+        <!-- nuke any default M3 overlay so you don’t get the pink secondary -->
+        <item name="materialThemeOverlay">@null</item>
+
+        <!-- apply your light‐gray fill -->
+        <item name="backgroundTint">@color/light_gray</item>
+        <!-- ripple on press -->
+        <item name="rippleColor">@color/black</item>
+        <item name="android:tint">@color/black</item>
+
+        <!-- plug in your circle shape -->
+        <item name="shapeAppearance">@style/ShapeAppearance.CalcKey</item>
+
+        <!-- fixed sizing & text -->
         <item name="android:layout_width">64dp</item>
         <item name="android:layout_height">64dp</item>
-        <!-- gutter around each key -->
         <item name="android:layout_margin">12dp</item>
-        <!-- white circle bg -->
-        <item name="android:background">@drawable/calc_btn_bg</item>
         <item name="android:gravity">center</item>
         <item name="android:textSize">24sp</item>
         <item name="android:fontFamily">@font/jersey_font_family</item>
         <item name="android:textColor">@android:color/black</item>
-        <!-- remove any minHeight so shape can be exactly 64dp -->
-        <item name="android:minHeight">0dp</item>
         <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
     </style>
 
 

@@ -10,7 +10,7 @@
     <!-- Navigation Drawer -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mainContent"
-        style="@style/TextAppearance.Jersey"
+        android:background="@color/white"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -40,7 +40,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnUpdate"
             android:layout_width="80dp"
-            style="@style/Widget.MaterialComponents.Button.Icon"
+            style="@style/Widget.CurrencyConverter.Button.Icon"
             android:layout_marginTop="100dp"
             android:layout_height="30dp"
             android:layout_marginStart="16dp"
@@ -190,6 +190,7 @@
 
 
                     <Button
+                        style="@style/Widget.CurrencyConverter.Button.Icon"
                         android:id="@+id/btnScrollRetry"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -206,7 +207,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAdd"
-            style="@style/Widget.MaterialComponents.Button.Icon"
+            style="@style/Widget.CurrencyConverter.Button.Icon"
             android:layout_width="80dp"
             android:layout_height="30dp"
             android:layout_marginStart="16dp"
@@ -223,12 +224,14 @@
 
         <!-- Floating Calculator Button -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            style="@style/Widget.CurrencyConverter.FAB.Icon"
             android:id="@+id/btnCalculator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.CurrencyConverter.FAB"
             android:src="@drawable/baseline_calculate_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

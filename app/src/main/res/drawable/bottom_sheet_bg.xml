@@ -1,7 +1,9 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <!-- background color for the whole list area -->
-    <solid android:color="@color/light_gray" />
+    <solid android:color="@color/white" />
     <!-- round all four corners -->
-    <corners android:radius="13dp" />
+    <corners
+        android:topLeftRadius="24dp"
+        android:topRightRadius="24dp" />
 </shape>

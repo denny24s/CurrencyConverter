@@ -1,9 +1,12 @@
 package com.example.currencyconverter.ui.calculator
 
 import android.content.Context
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
 import com.example.currencyconverter.databinding.ActivityCalculatorBinding
 import net.objecthunter.exp4j.ExpressionBuilder
 import net.objecthunter.exp4j.operator.Operator
@@ -19,6 +22,14 @@ class CalculatorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCalculatorBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        WindowCompat.setDecorFitsSystemWindows(window, true)
+        window.statusBarColor = Color.WHITE
+        window.navigationBarColor = Color.TRANSPARENT
+// on Android 12+ to allow transparent nav bar:
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            window.isNavigationBarContrastEnforced = false
+        }
 
         // Load saved data from SharedPreferences
         val prefs = getSharedPreferences("calc_prefs", Context.MODE_PRIVATE)
@@ -119,5 +130,7 @@ class CalculatorActivity : AppCompatActivity() {
         binding.tvExpression.post {
             binding.tvExpression.requestLayout()
         }
+
     }
+
 }

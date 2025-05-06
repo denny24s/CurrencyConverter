@@ -6,6 +6,7 @@
     android:id="@+id/calculatorRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".ui.calculator.CalculatorActivity"
     android:padding="16dp">
 
@@ -45,8 +46,8 @@
     <!-- Delete button -->
     <ImageView
         android:id="@+id/btnDelete"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="34dp"
+        android:layout_height="28dp"
         android:layout_marginTop="36dp"
         android:src="@drawable/baseline_backspace_24"
         app:layout_constraintBottom_toTopOf="@+id/divider"
@@ -83,7 +84,7 @@
     <!-- below your divider… -->
     <GridLayout
         android:id="@+id/keypad"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:alignmentMode="alignBounds"
         android:columnCount="4"
