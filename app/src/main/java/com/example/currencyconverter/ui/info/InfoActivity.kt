@@ -19,7 +19,7 @@ class InfoActivity : AppCompatActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, true)
         window.statusBarColor = Color.WHITE
-        window.navigationBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.WHITE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             window.isNavigationBarContrastEnforced = false
         }
