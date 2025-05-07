@@ -13,6 +13,7 @@
         <item name="colorAccent">@color/light_gray</item>
         <item name="colorControlActivated">@color/light_gray</item>
 
+
         <!-- window backdrop -->
         <item name="android:windowBackground">@color/white</item>
 
