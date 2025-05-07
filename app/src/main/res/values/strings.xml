@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">cConverter</string>
+    <string name="app_name">Converter</string>
     <string name="currency_converter">Currency Converter</string>
     <string name="update">Update</string>
     <string name="updated_time">Updated time</string>
@@ -13,7 +13,7 @@
 
     <string name="app_info_long"><![CDATA[
         <h2>About cConverter</h2>
-        Convert between over <b>150</b> world currencies instantly,<br/>
+        Convert between over <b>200+</b> world currencies instantly,<br/>
         with up‑to‑date exchange rates fetched in real time.<br/><br/>
 
         &#8226; <b>Easy to Use</b> – Tap any currency to set it as your base, enter an amount, and see all other values recalculate instantly.<br/>
