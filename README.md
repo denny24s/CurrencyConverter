@@ -1,3 +1,11 @@
+<center>
+<div style="display:flex;">
+<img src=".docs/screenshot_1.png" alt="ui_diary" width="24%"/>
+<img src=".docs/screenshot_2.png" alt="ui_diary" width="24%"/>
+<img src=".docs/screenshot_3.png" alt="ui_diary" width="24%"/>
+<img src=".docs/screenshot_4.png" alt="ui_diary" width="24%"/>
+</div>
+</center>
 
 
 
