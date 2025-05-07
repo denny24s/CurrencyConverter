@@ -33,4 +33,4 @@ Convert between over 200+ world currencies instantly, with up‑to‑date exchan
 
 1. Clone the repo:  
    ```bash
-   git clone https://github.com/your‑user/ccurrency‑converter.git
+  [ git clone https://github.com/your‑user/ccurrency‑converter.git](https://github.com/denny24s/CurrencyConverter.git)
