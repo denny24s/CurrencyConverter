@@ -16,12 +16,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.EdgeEffect
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -124,6 +126,18 @@ class MainActivity : AppCompatActivity() {
                 })
             })
         }
+
+        binding.currencyRecyclerView.edgeEffectFactory =
+            object : RecyclerView.EdgeEffectFactory() {
+                override fun createEdgeEffect(
+                    view: RecyclerView,
+                    direction: Int
+                ): EdgeEffect {
+                    val edge = super.createEdgeEffect(view, direction)
+                    edge.color = ContextCompat.getColor(this@MainActivity, R.color.light_gray)
+                    return edge
+                }
+            }
 
         ivLogo.setImageResource(logoFrames[0])
         logoHandler.postDelayed(logoRunnable, 3_000L)
