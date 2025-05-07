@@ -11,6 +11,5 @@ java {
 
 dependencies {
     implementation("com.google.dagger:hilt-core:2.51.1")
-    // If you need annotation processing (for modules/components), apply kapt and add:
     kapt("com.google.dagger:hilt-compiler:2.51.1")
 }
