@@ -7,12 +7,9 @@
 </div>
 </center>
 
+# Currency Converter
 
-
-
-# Curency Converter
-
-First grance at clean architecture, **Kotlin | View(Xml) | Retrofit**
+First glance at clean architecture, **Kotlin | View(Xml) | Retrofit**
 
 
 Convert between over 200+ world currencies instantly, with up‑to‑date exchange rates fetched in real time.
@@ -35,7 +32,3 @@ Convert between over 200+ world currencies instantly, with up‑to‑date exchan
 - **Offline Handling**  
   If you lose connectivity you’ll see an error placeholder and can retry once you’re back online.
 
-## Quick Start
-
-1. Clone the repo:  
-  [ git clone https://github.com/your‑user/ccurrency‑converter.git](https://github.com/denny24s/CurrencyConverter.git)
